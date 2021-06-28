@@ -1,1 +1,3 @@
 # NcScriptConverter
+
+設計から送られてくるScriptを製造の都合に合わせて変換する
