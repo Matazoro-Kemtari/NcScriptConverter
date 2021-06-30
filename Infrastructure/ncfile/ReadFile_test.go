@@ -1,7 +1,6 @@
 package ncfile
 
 import (
-	"bufio"
 	"nc-script-converter/Domain/alterationncscript"
 	"reflect"
 	"testing"
@@ -14,12 +13,12 @@ func TestNewNcScriptFile(t *testing.T) {
 	}{
 		{
 			name: "正常系_オブジェクト生成できること",
-			want: new(NcScriptFile),
+			want: new(ReadableNcScriptFile),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewNcScriptFile(); !reflect.DeepEqual(got, tt.want) {
+			if got := NewReadableNcScriptFile(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewNcScriptFile() = %v, want %v", got, tt.want)
 			}
 		})
@@ -32,14 +31,14 @@ func TestNcScriptFile_ReadAll(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		n       *NcScriptFile
+		n       *ReadableNcScriptFile
 		args    args
 		want    []string
 		wantErr bool
 	}{
 		{
 			name: "正常系_ファイルの内容を読み込めること",
-			n:    new(NcScriptFile),
+			n:    new(ReadableNcScriptFile),
 			args: args{
 				"./testdata/test.txt",
 			},
@@ -51,7 +50,7 @@ func TestNcScriptFile_ReadAll(t *testing.T) {
 		},
 		{
 			name: "異常系_パスがフランク",
-			n:    new(NcScriptFile),
+			n:    new(ReadableNcScriptFile),
 			args: args{
 				"",
 			},
@@ -60,7 +59,7 @@ func TestNcScriptFile_ReadAll(t *testing.T) {
 		},
 		{
 			name: "異常系_存在しないパス",
-			n:    new(NcScriptFile),
+			n:    new(ReadableNcScriptFile),
 			args: args{
 				"./testdata/no",
 			},
@@ -75,13 +74,7 @@ func TestNcScriptFile_ReadAll(t *testing.T) {
 				t.Errorf("NcScriptFile.ReadAll() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			defer got.Close()
-			s := bufio.NewScanner(got)
-			var lines []string
-			for s.Scan() {
-				lines = append(lines, s.Text())
-			}
-			if !reflect.DeepEqual(lines, tt.want) {
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NcScriptFile.ReadAll() = %v, want %v", got, tt.want)
 			}
 		})

@@ -1,18 +1,19 @@
 package ncfile
 
 import (
+	"bufio"
 	"fmt"
 	"nc-script-converter/Domain/alterationncscript"
 	"os"
 )
 
-type NcScriptFile struct{}
+type ReadableNcScriptFile struct{}
 
-func NewNcScriptFile() alterationncscript.FileReader {
-	return new(NcScriptFile)
+func NewReadableNcScriptFile() alterationncscript.FileReader {
+	return new(ReadableNcScriptFile)
 }
 
-func (n *NcScriptFile) ReadAll(path string) (*os.File, error) {
+func (n *ReadableNcScriptFile) ReadAll(path string) ([]string, error) {
 	if len(path) == 0 {
 		return nil, fmt.Errorf("引数が空です")
 	}
@@ -21,6 +22,13 @@ func (n *NcScriptFile) ReadAll(path string) (*os.File, error) {
 	if err != nil {
 		return nil, fmt.Errorf("ファイルの読み込みに失敗しました error:%v", err)
 	}
+	defer fp.Close()
 
-	return fp, nil
+	s := bufio.NewScanner(fp)
+	var lines []string
+	for s.Scan() {
+		lines = append(lines, s.Text())
+	}
+
+	return lines, nil
 }
