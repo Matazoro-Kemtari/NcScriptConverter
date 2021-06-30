@@ -1,19 +1,22 @@
 package alterationncscript
 
 import (
-	"bufio"
 	"fmt"
+	"log"
+	"sort"
 )
 
 type CombinedNcScript struct {
 	dir DirViewer
 	fr  FileReader
+	cnv ConvertedNcScript
 }
 
-func NewCombinedNcScript(dir DirViewer, fr FileReader) *CombinedNcScript {
+func NewCombinedNcScript(dir DirViewer, fr FileReader, cnv ConvertedNcScript) *CombinedNcScript {
 	return &CombinedNcScript{
 		dir: dir,
 		fr:  fr,
+		cnv: cnv,
 	}
 }
 
@@ -27,24 +30,32 @@ func (c *CombinedNcScript) CombineNcScript(inPath string, outPath string) error 
 		return fmt.Errorf("このフォルダは空です")
 	}
 
+	// ファイル名順にする
+	sort.Slice(files, func(i, j int) bool {
+		return files[i] < files[j]
+	})
+
 	// ファイルの読み込み
-	var lines []string
+	var conLine []string
 	for _, fPath := range files {
-		f, err := c.fr.ReadAll(fPath)
+		lines, err := c.fr.ReadAll(fPath)
 		if err != nil {
 			return err
 		}
-		defer f.Close()
 
-		s := bufio.NewScanner(f)
-		var lines []string
-		for s.Scan() {
-			// 置換
-			buf := s.Text()
-			lines = append(lines, buf)
+		resLine, err := c.cnv.Convert(lines)
+		if err != nil {
+			return err
 		}
+		conLine = append(conLine, resLine...)
 	}
 
-	// ファイル保存
+	// 前後に"%"追加
+	conLine = append([]string{"%"}, conLine...)
+	conLine = append(conLine, "%")
 
+	// ファイル保存
+	log.Println("info:", conLine)
+
+	return nil
 }
