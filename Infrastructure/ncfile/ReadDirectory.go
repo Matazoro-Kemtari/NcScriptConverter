@@ -5,12 +5,12 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"nc-script-converter/Domain/ncscript"
+	"nc-script-converter/Domain/alterationncscript"
 )
 
 type NcScriptDir struct{}
 
-func NewNcScriptDir() ncscript.DirViewer {
+func NewNcScriptDir() alterationncscript.DirViewer {
 	return new(NcScriptDir)
 }
 

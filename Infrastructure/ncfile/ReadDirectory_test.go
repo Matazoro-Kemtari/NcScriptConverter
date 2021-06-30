@@ -1,7 +1,7 @@
 package ncfile
 
 import (
-	"nc-script-converter/Domain/ncscript"
+	"nc-script-converter/Domain/alterationncscript"
 	"reflect"
 	"testing"
 )
@@ -9,7 +9,7 @@ import (
 func TestNewNcScriptDir(t *testing.T) {
 	tests := []struct {
 		name string
-		want ncscript.DirViewer
+		want alterationncscript.DirViewer
 	}{
 		{
 			name: "正常系_オブジェクト生成できること",
