@@ -11,6 +11,7 @@ import (
 )
 
 type MainViewController struct {
+	version   string
 	concat    *concatenatedscript.ConcatenatedNcScriptUseCase
 	inPath    string
 	outPath   string
@@ -19,9 +20,10 @@ type MainViewController struct {
 	cnvButton *widgets.QPushButton
 }
 
-func NewMainViewController(concat *concatenatedscript.ConcatenatedNcScriptUseCase) *MainViewController {
+func NewMainViewController(version string, concat *concatenatedscript.ConcatenatedNcScriptUseCase) *MainViewController {
 	return &MainViewController{
-		concat: concat,
+		version: version,
+		concat:  concat,
 	}
 }
 
@@ -57,7 +59,7 @@ func (v *MainViewController) showWindow() {
 
 	window := widgets.NewQMainWindow(nil, 0)
 	window.SetMinimumSize2(400, 300)
-	window.SetWindowTitle("NCプログラム変換")
+	window.SetWindowTitle("NCプログラム変換 :" + (*v).version)
 
 	//フレームワークに上記で作成したレイアウトをセットする
 	baseWidget := widgets.NewQWidget(nil, 0)
