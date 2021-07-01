@@ -20,15 +20,15 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 	isReamerSource := c.isReamerSource(source)
 
 	var res []string
-	regPercent := regexp.MustCompile(`%`)
-	regFdNo := regexp.MustCompile(`O\d{4}`)
-	regTool := regexp.MustCompile(`\(T1[23456]\)`)
-	regSpindle := regexp.MustCompile(`\(S\d{4}\)`)
-	regG82 := regexp.MustCompile(`G82`)
-	regG83 := regexp.MustCompile(`G83`)
-	regG85 := regexp.MustCompile(`G85`)
-	regX0Y0 := regexp.MustCompile(`X0\.Y0\.`)
-	regM99 := regexp.MustCompile(`M99`)
+	regPercent := regexp.MustCompile(`^%$`)
+	regFdNo := regexp.MustCompile(`^O\d{4}$`)
+	regTool := regexp.MustCompile(`^\(T[1234]\d\)$`)
+	regSpindle := regexp.MustCompile(`^\(S\d{4}\)$`)
+	regG82 := regexp.MustCompile(`^\(G82\)$`)
+	regG83 := regexp.MustCompile(`^\(G83\)$`)
+	regG85 := regexp.MustCompile(`^\(G85\)$`)
+	regX0Y0 := regexp.MustCompile(`^X0\.Y0\.$`)
+	regM99 := regexp.MustCompile(`^M99$`)
 	if isReamerSource {
 		res = append(res, "M00")
 	}
@@ -65,7 +65,8 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 			res = append(res, "G98G85R2.0 Z-35.F150L0")
 		} else if regX0Y0.MatchString(source[i]) {
 			res = append(res, source[i])
-			if isHoleSource {
+			// 次の行が"M99"の場合
+			if isHoleSource && len(source) > i && regM99.MatchString(source[i+1]) {
 				res = append(res, "M5")
 				res = append(res, "M9")
 				res = append(res, "G91G0G28Z0")
