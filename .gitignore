@@ -28,6 +28,9 @@ main
 *.log
 *.zip
 
+# テスト出力ファイルは無視する
+**/testdata/**/output_*
+
 * - コピー.xlsx
 
 #PlantUML画像出力用フォルダ
