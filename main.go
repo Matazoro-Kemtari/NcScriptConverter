@@ -9,6 +9,7 @@ import (
 	"nc-script-converter/UseCase/concatenatedscript"
 	"nc-script-converter/presentation/mainview"
 	"os"
+	"time"
 
 	"github.com/comail/colog"
 )
@@ -30,7 +31,7 @@ func main() {
 	}
 
 	// logの設定 https://qiita.com/kmtr/items/406073651d7a12aab9c6
-	file, err := os.OpenFile("error_json.log", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0655)
+	file, err := os.OpenFile("app_json.log", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0655)
 	if err != nil {
 		panic(err)
 	}
@@ -39,14 +40,14 @@ func main() {
 	colog.ParseFields(true)
 	colog.SetDefaultLevel(colog.LDebug)
 	colog.SetMinLevel(colog.LTrace)
-	// colog.SetFormatter(&colog.JSONFormatter{
-	// 	TimeFormat: time.RFC3339,
-	// 	Flag:       log.Lshortfile,
-	// })
-	colog.SetFormatter(&colog.StdFormatter{
-		Colors: true,
-		Flag:   log.Ldate | log.Ltime | log.Lshortfile,
+	colog.SetFormatter(&colog.JSONFormatter{
+		TimeFormat: time.RFC3339,
+		Flag:       log.Lshortfile,
 	})
+	// colog.SetFormatter(&colog.StdFormatter{
+	// 	Colors: true,
+	// 	Flag:   log.Ldate | log.Ltime | log.Lshortfile,
+	// })
 	colog.Register()
 
 	/** 依存性注入 **/

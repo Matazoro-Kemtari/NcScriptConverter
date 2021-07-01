@@ -1,7 +1,6 @@
 package mainview
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"nc-script-converter/UseCase/concatenatedscript"
@@ -12,9 +11,12 @@ import (
 )
 
 type MainViewController struct {
-	concat  *concatenatedscript.ConcatenatedNcScriptUseCase
-	inPath  string
-	outPath string
+	concat    *concatenatedscript.ConcatenatedNcScriptUseCase
+	inPath    string
+	outPath   string
+	inLabel   *widgets.QLabel
+	outLabel  *widgets.QLabel
+	cnvButton *widgets.QPushButton
 }
 
 func NewMainViewController(concat *concatenatedscript.ConcatenatedNcScriptUseCase) *MainViewController {
@@ -24,15 +26,20 @@ func NewMainViewController(concat *concatenatedscript.ConcatenatedNcScriptUseCas
 }
 
 func (v *MainViewController) Initialize() {
-	fmt.Println("NCデータが保存されているフォルダを指定してください")
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	in := scanner.Text()
+	// fmt.Println("[NCデータが保存されているフォルダを指定してください]")
+	// scanner := bufio.NewScanner(os.Stdin)
+	// scanner.Scan()
+	// in := scanner.Text()
 
-	fmt.Println("結合ファイルの保存先を指定してください")
-	scanner.Scan()
-	out := scanner.Text()
-	(*v.concat).ConcatenatedNcScript(in, out)
+	// fmt.Println("[結合ファイルのファイル名を指定してください]")
+	// scanner.Scan()
+	// out := scanner.Text()
+	// (*v.concat).ConcatenatedNcScript(in, out)
+
+	// fmt.Println("[終了しました。何かキーを押して終了します]")
+	// scanner.Scan()
+
+	v.showWindow()
 }
 
 func (v *MainViewController) showWindow() {
@@ -60,31 +67,62 @@ func (v *MainViewController) showWindow() {
 	baseWidget.SetLayout(vbox)
 
 	// NCデータフォルダの指定
-	hbox := widgets.NewQHBoxLayout()
+	hbox1 := widgets.NewQHBoxLayout()
 	label1 := widgets.NewQLabel2("NCデータフォルダ", nil, 0)
-	fButton := widgets.NewQPushButton2("参照", nil)
-	hbox.AddWidget(label1, 0, core.Qt__AlignCenter)
-	hbox.AddWidget(fButton, 0, core.Qt__AlignCenter)
+	inButton := widgets.NewQPushButton2("参照", nil)
+	hbox1.AddWidget(label1, 0, core.Qt__AlignTrailing)
+	hbox1.AddWidget(inButton, 0, core.Qt__AlignBaseline)
+	(*v).inLabel = widgets.NewQLabel2("", nil, 0)
 
 	// フォルダ参照イベント
-	fButton.ConnectClicked(func(checked bool) {
+	inButton.ConnectClicked(func(checked bool) {
 		// フォルダ選択ダイアログ表示
 		// https://day-journal.com/memo/qt-005/
 		// http://qt-log.open-memo.net/sub/dialog__directory_dialog.html
-		dir := widgets.QFileDialog_GetExistingDirectory(
+		p := widgets.QFileDialog_GetExistingDirectory(
 			nil,
 			"NCデータフォルダを指定してください",
 			"C:\\",
-			widgets.QFileDialog__DontConfirmOverwrite,
+			widgets.QFileDialog__DontUseCustomDirectoryIcons,
 		)
-		fmt.Println(dir)
+		if len(p) > 0 {
+			(*v).inPath = p
+			v.inLabel.SetText(p)
+			v.setConvertButtonEnabled()
+		}
+		fmt.Println(v.inPath)
+	})
 
+	// 結合ファイルの保存先
+	hbox2 := widgets.NewQHBoxLayout()
+	label2 := widgets.NewQLabel2("結合ファイルの保存先", nil, 0)
+	outButton := widgets.NewQPushButton2("参照", nil)
+	hbox2.AddWidget(label2, 0, core.Qt__AlignTrailing)
+	hbox2.AddWidget(outButton, 0, core.Qt__AlignBaseline)
+	(*v).outLabel = widgets.NewQLabel2("", nil, 0)
+
+	outButton.ConnectClicked(func(checked bool) {
+		// ファイルの保存先ダイアログ表示
+		p := widgets.QFileDialog_GetSaveFileName(
+			nil,
+			"結合ファイル名を指定してください",
+			"C:\\",
+			"すべて(*.*)",
+			"すべて(*.*)",
+			widgets.QFileDialog__DontUseCustomDirectoryIcons,
+		)
+		if len(p) > 0 {
+			(*v).outPath = p
+			v.outLabel.SetText(p)
+			v.setConvertButtonEnabled()
+		}
+		log.Println(v.outPath)
 	})
 
 	// コンバートの指定
-	cnvButton := widgets.NewQPushButton2("実行", nil)
-	cnvButton.ConnectClicked(func(checked bool) {
-		cnvButton.SetEnabled(!cnvButton.IsEnabled())
+	v.cnvButton = widgets.NewQPushButton2("実行", nil)
+	v.cnvButton.ConnectClicked(func(checked bool) {
+		v.cnvButton.SetEnabled(!v.cnvButton.IsEnabled())
 		// 起動
 		if err := v.concat.ConcatenatedNcScript(v.inPath, v.outPath); err != nil {
 			// エラーメッセージ
@@ -101,19 +139,37 @@ func (v *MainViewController) showWindow() {
 				widgets.QMessageBox__Ok,
 			)
 
-			fButton.SetEnabled(!fButton.IsEnabled())
+			inButton.SetEnabled(!inButton.IsEnabled())
 			return
 		}
-		cnvButton.SetEnabled(!cnvButton.IsEnabled())
+
+		// 終了メッセージ
+		widgets.QMessageBox_Information(
+			window,
+			"正常終了",
+			"結合処理が正常に終了しました",
+			widgets.QMessageBox__Ok,
+			widgets.QMessageBox__Ok,
+		)
+		v.inLabel.Clear()
+		v.outLabel.Clear()
+		// v.cnvButton.SetEnabled(!v.cnvButton.IsEnabled())
 	})
 
-	// baseWidget.SetLayout(formLayout)
+	v.setConvertButtonEnabled()
+
 	window.SetCentralWidget(baseWidget)
-	baseWidget.Layout().AddChildLayout(hbox)
-	// baseWidget.Layout().AddWidget(fButton)
-	baseWidget.Layout().AddWidget(cnvButton)
+	vbox.AddLayout(hbox1, 0)
+	vbox.AddWidget(v.inLabel, 0, core.Qt__AlignBaseline)
+	vbox.AddLayout(hbox2, 0)
+	vbox.AddWidget(v.outLabel, 0, core.Qt__AlignBaseline)
+	vbox.AddWidget(v.cnvButton, 0, core.Qt__AlignBaseline)
 	window.Show()
 
 	widgets.QApplication_Exec()
 
+}
+
+func (v *MainViewController) setConvertButtonEnabled() {
+	v.cnvButton.SetEnabled(len(v.inPath) > 0 && len(v.outPath) > 0)
 }
