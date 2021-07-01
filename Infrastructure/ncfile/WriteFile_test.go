@@ -42,7 +42,7 @@ func TestWritableNcScriptFile_WriteAll(t *testing.T) {
 			name: "正常系_ファイルが保存されること",
 			n:    new(WritableNcScriptFile),
 			args: args{
-				path: "./testdata/newScript",
+				path: "./testdata/output_newScript",
 				contents: []string{
 					"",
 					"(O4701)",
