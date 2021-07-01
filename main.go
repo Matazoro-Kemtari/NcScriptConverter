@@ -4,9 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"nc-script-converter/Domain/alterationncscript"
+	"nc-script-converter/Infrastructure/ncfile"
+	"nc-script-converter/UseCase/concatenatedscript"
 	"nc-script-converter/presentation/mainview"
 	"os"
-	"time"
 
 	"github.com/comail/colog"
 )
@@ -35,17 +37,29 @@ func main() {
 	defer file.Close()
 	colog.SetOutput(file)
 	colog.ParseFields(true)
-	colog.SetFormatter(&colog.JSONFormatter{
-		TimeFormat: time.RFC3339,
-		Flag:       log.Lshortfile,
-	})
 	colog.SetDefaultLevel(colog.LDebug)
 	colog.SetMinLevel(colog.LTrace)
-	// colog.SetFormatter(&colog.StdFormatter{
-	// 	Colors: true,
-	// 	Flag:   log.Ldate | log.Ltime | log.Lshortfile,
+	// colog.SetFormatter(&colog.JSONFormatter{
+	// 	TimeFormat: time.RFC3339,
+	// 	Flag:       log.Lshortfile,
 	// })
+	colog.SetFormatter(&colog.StdFormatter{
+		Colors: true,
+		Flag:   log.Ldate | log.Ltime | log.Lshortfile,
+	})
 	colog.Register()
 
-	mainview.ShowWindow()
+	/** 依存性注入 **/
+	combinedNcScript := alterationncscript.NewCombinedNcScript(
+		ncfile.NewNcScriptDir(),
+		ncfile.NewReadableNcScriptFile(),
+		alterationncscript.NewConvertedNcScript(),
+		ncfile.NewWritableNcScriptFile(),
+	)
+	concatUseCase := concatenatedscript.NewConcatenatedNcScriptUseCase(
+		combinedNcScript,
+	)
+
+	mv := mainview.NewMainViewController(concatUseCase)
+	(*mv).Initialize()
 }
