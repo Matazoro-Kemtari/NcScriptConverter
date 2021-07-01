@@ -27,6 +27,7 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 	regG82 := regexp.MustCompile(`G82`)
 	regG83 := regexp.MustCompile(`G83`)
 	regG85 := regexp.MustCompile(`G85`)
+	regX0Y0 := regexp.MustCompile(`X0\.Y0\.`)
 	regM99 := regexp.MustCompile(`M99`)
 	if isReamerSource {
 		res = append(res, "M00")
@@ -62,12 +63,18 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 			res = append(res, "G98G83R2.0 Z-45.Q2.0F180L0")
 		} else if regG85.MatchString(source[i]) {
 			res = append(res, "G98G85R2.0 Z-35.F150L0")
+		} else if regX0Y0.MatchString(source[i]) {
+			res = append(res, source[i])
+			if isHoleSource {
+				res = append(res, "M5")
+				res = append(res, "M9")
+				res = append(res, "G91G0G28Z0")
+			}
 		} else if regM99.MatchString(source[i]) {
 			if isHoleSource {
 				res = append(res, "(M99)")
 			} else {
 				res = append(res, "G05.1Q0")
-				res = append(res, "G80")
 				res = append(res, "M5")
 				res = append(res, "M9")
 				res = append(res, "G91G0G28Z0")
