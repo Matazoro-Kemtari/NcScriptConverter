@@ -59,7 +59,7 @@ func (v *MainViewController) showWindow() {
 
 	window := widgets.NewQMainWindow(nil, 0)
 	window.SetMinimumSize2(400, 300)
-	window.SetWindowTitle("NCプログラム変換 :" + (*v).version)
+	window.SetWindowTitle("NCプログラム変換 : " + (*v).version)
 
 	//フレームワークに上記で作成したレイアウトをセットする
 	baseWidget := widgets.NewQWidget(nil, 0)
