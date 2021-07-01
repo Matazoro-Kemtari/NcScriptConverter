@@ -9,8 +9,9 @@ import (
 
 type ReadableNcScriptFile struct{}
 
-func NewReadableNcScriptFile() alterationncscript.FileReader {
-	return new(ReadableNcScriptFile)
+func NewReadableNcScriptFile() *alterationncscript.FileReader {
+	var obj alterationncscript.FileReader = &ReadableNcScriptFile{}
+	return &obj
 }
 
 func (n *ReadableNcScriptFile) ReadAll(path string) ([]string, error) {

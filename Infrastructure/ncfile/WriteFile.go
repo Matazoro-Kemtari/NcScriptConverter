@@ -8,8 +8,9 @@ import (
 
 type WritableNcScriptFile struct{}
 
-func NewWritableNcScriptFile() alterationncscript.FileWriter {
-	return new(WritableNcScriptFile)
+func NewWritableNcScriptFile() *alterationncscript.FileWriter {
+	var obj alterationncscript.FileWriter = &WritableNcScriptFile{}
+	return &obj
 }
 
 func (n *WritableNcScriptFile) WriteAll(path string, contents []string) error {

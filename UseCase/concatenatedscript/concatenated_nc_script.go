@@ -3,10 +3,10 @@ package concatenatedscript
 import "nc-script-converter/Domain/alterationncscript"
 
 type ConcatenatedNcScriptUseCase struct {
-	concat alterationncscript.CombinedNcScript
+	concat *alterationncscript.CombinedNcScript
 }
 
-func NewConcatenatedNcScriptUseCase(concat alterationncscript.CombinedNcScript) *ConcatenatedNcScriptUseCase {
+func NewConcatenatedNcScriptUseCase(concat *alterationncscript.CombinedNcScript) *ConcatenatedNcScriptUseCase {
 	return &ConcatenatedNcScriptUseCase{
 		concat: concat,
 	}

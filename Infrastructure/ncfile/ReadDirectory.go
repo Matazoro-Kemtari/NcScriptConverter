@@ -10,8 +10,9 @@ import (
 
 type NcScriptDir struct{}
 
-func NewNcScriptDir() alterationncscript.DirViewer {
-	return new(NcScriptDir)
+func NewNcScriptDir() *alterationncscript.DirViewer {
+	var obj alterationncscript.DirViewer = &NcScriptDir{}
+	return &obj
 }
 
 func (n *NcScriptDir) FetchDir(path string) ([]string, error) {
