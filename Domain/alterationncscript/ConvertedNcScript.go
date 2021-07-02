@@ -91,7 +91,7 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 
 /* 穴あけのスクリプトか判定する */
 func (c *ConvertedNcScript) isHoleSource(source []string) bool {
-	reg := regexp.MustCompile(`G8[235]`)
+	reg := regexp.MustCompile(`^\(G8[235]\)$`)
 	for i := range source {
 		if reg.MatchString(source[i]) {
 			return true
@@ -103,7 +103,7 @@ func (c *ConvertedNcScript) isHoleSource(source []string) bool {
 
 /* リーマのスクリプトか判定する */
 func (c *ConvertedNcScript) isReamerSource(source []string) bool {
-	reg := regexp.MustCompile(`(T15)`)
+	reg := regexp.MustCompile(`^\(T15\)$`)
 	for i := range source {
 		if reg.MatchString(source[i]) {
 			return true

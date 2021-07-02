@@ -109,8 +109,8 @@ func (v *MainViewController) showWindow() {
 			nil,
 			"結合ファイル名を指定してください",
 			"C:\\",
-			"すべて(*.*)",
-			"すべて(*.*)",
+			"すべて(*)",
+			"すべて(*)",
 			widgets.QFileDialog__DontUseCustomDirectoryIcons,
 		)
 		if len(p) > 0 {
