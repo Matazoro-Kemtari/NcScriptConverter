@@ -242,6 +242,8 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 				"X0.Y0.",
 				"G90X0.Y0.",
 				"X0.Y0.",
+				"G91G0G28Z0",
+				"G91G0G28B0C0",
 				"(M30)",
 				"",
 			},
