@@ -29,6 +29,7 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 	regG85 := regexp.MustCompile(`^\(G85\)$`)
 	regX0Y0 := regexp.MustCompile(`^X0\.Y0\.$`)
 	regM99 := regexp.MustCompile(`^M99$`)
+	regM30 := regexp.MustCompile(`^M30$`)
 	if isReamerSource {
 		res = append(res, "M00")
 	}
@@ -81,6 +82,8 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 				res = append(res, "G91G0G28Z0")
 				res = append(res, "(M99)")
 			}
+		} else if regM30.MatchString(source[i]) {
+			res = append(res, "(M30)")
 		} else {
 			res = append(res, source[i])
 		}
