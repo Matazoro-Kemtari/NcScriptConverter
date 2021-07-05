@@ -61,6 +61,6 @@ func main() {
 		combinedNcScript,
 	)
 
-	mv := mainview.NewMainViewController(concatUseCase)
+	mv := mainview.NewMainViewController(fmt.Sprintf("%s.%s", version, revision), concatUseCase)
 	(*mv).Initialize()
 }
