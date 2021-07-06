@@ -69,12 +69,16 @@ func (m *MainView) viewDesign() {
 	baseWidget.SetLayout(vbox)
 
 	// NCデータフォルダの指定
-	hbox1 := widgets.NewQHBoxLayout()
 	label1 := widgets.NewQLabel2("NCデータフォルダ", nil, 0)
 	(*m).inLabel = widgets.NewQLabel2("", nil, 0)
+	// 効果が見られなかった
+	// http://qt-log.open-memo.net/sub/layout__how_to_use_size_policy.html
+	// m.inLabel.SetSizePolicy2(widgets.QSizePolicy__Expanding, widgets.QSizePolicy__Fixed)
 	(*m).inButton = widgets.NewQPushButton2("参照", nil)
+	hbox1 := widgets.NewQHBoxLayout()
+	hbox1.SetSpacing(5)
 	hbox1.AddWidget(label1, 0, core.Qt__AlignLeft)
-	hbox1.AddWidget((*m).inLabel, 0, core.Qt__AlignHCenter)
+	hbox1.AddWidget((*m).inLabel, 0, core.Qt__AlignCenter)
 	hbox1.AddWidget((*m).inButton, 0, core.Qt__AlignRight)
 
 	// ディレクトリ内のファイル一覧
@@ -126,6 +130,8 @@ func (m *MainView) viewDesign() {
 
 	// コンバートの指定
 	m.cnvButton = widgets.NewQPushButton2("実行", nil)
+	m.cnvButton.SetMinimumHeight(50)
+	m.cnvButton.SetMaximumHeight(70)
 
 	m.window.SetCentralWidget(baseWidget)
 	vbox.AddLayout(hbox1, 0)
@@ -138,7 +144,7 @@ func (m *MainView) viewDesign() {
 }
 
 func (m *MainView) addStyle() {
-	(*m).inLabel.SetStyleSheet(
-		"border:1px solid black;",
-	)
+	// (*m).inLabel.SetStyleSheet(
+	// 	"border:1px solid black;",
+	// )
 }
