@@ -63,6 +63,9 @@ func (v *MainViewController) Initialize() {
 		// ファイル一覧の更新
 		v.readFileListBox(p)
 
+		// 全追加・削除ボタンの有効化
+		v.setAllItemsButtonEnabled()
+
 		// 変換ボタンの有効化
 		v.setConvertButtonEnabled()
 
@@ -81,6 +84,28 @@ func (v *MainViewController) Initialize() {
 		v.mainView.removeButton.SetEnabled(v.mainView.inFileList.CurrentItem().IsSelected())
 	})
 
+	// 全ファイル追加イベント
+	v.mainView.allAddButton.ConnectClicked(func(checked bool) {
+		v.mainView.inFileItems = append(v.mainView.inFileItems, v.mainView.dirFilItems...)
+		v.mainView.dirFilItems = nil
+		v.mainView.dirFilList.Clear()
+		v.mainView.inFileList.Clear()
+		v.mainView.inFileList.AddItems(v.mainView.inFileItems)
+
+		v.setAllItemsButtonEnabled()
+	})
+
+	// 全ファイル削除イベント
+	v.mainView.allRemoveButton.ConnectClicked(func(checked bool) {
+		v.mainView.dirFilItems = append(v.mainView.dirFilItems, v.mainView.inFileItems...)
+		v.mainView.inFileItems = nil
+		v.mainView.dirFilList.Clear()
+		v.mainView.inFileList.Clear()
+		v.mainView.dirFilList.AddItems(v.mainView.dirFilItems)
+
+		v.setAllItemsButtonEnabled()
+	})
+
 	// ファイル追加イベント
 	v.mainView.addButton.ConnectClicked(func(checked bool) {
 		name := v.mainView.dirFilList.CurrentItem().Text()
@@ -91,6 +116,8 @@ func (v *MainViewController) Initialize() {
 		v.mainView.dirFilItems = remove(v.mainView.dirFilItems, i)
 		v.mainView.dirFilList.Clear()
 		v.mainView.dirFilList.AddItems(v.mainView.dirFilItems)
+
+		v.setAllItemsButtonEnabled()
 	})
 
 	// ファイル削除イベント
@@ -103,6 +130,8 @@ func (v *MainViewController) Initialize() {
 		v.mainView.inFileItems = remove(v.mainView.inFileItems, i)
 		v.mainView.inFileList.Clear()
 		v.mainView.inFileList.AddItems(v.mainView.inFileItems)
+
+		v.setAllItemsButtonEnabled()
 	})
 
 	// 結合ファイルの保存先参照イベント
@@ -165,12 +194,19 @@ func (v *MainViewController) Initialize() {
 
 	v.setListBoxesEnabled()
 	v.setConvertButtonEnabled()
+	v.setAllItemsButtonEnabled()
 	v.mainView.addButton.SetEnabled(false)
 	v.mainView.removeButton.SetEnabled(false)
 
 	v.mainView.window.Show()
 	widgets.QApplication_Exec()
 
+}
+
+/* 全追加・全削除の有効化 */
+func (v *MainViewController) setAllItemsButtonEnabled() {
+	v.mainView.allAddButton.SetEnabled(len(v.mainView.dirFilItems) > 0)
+	v.mainView.allRemoveButton.SetEnabled(len(v.mainView.inFileItems) > 0)
 }
 
 /* 変換ボタンの有効化 */
@@ -188,8 +224,6 @@ func (v *MainViewController) setListBoxesEnabled() {
 	}
 
 	v.mainView.dirFilList.SetEnabled(e)
-	v.mainView.allAddButton.SetEnabled(e)
-	v.mainView.allRemoveButton.SetEnabled(e)
 	v.mainView.inFileList.SetEnabled(e)
 	v.mainView.raisableRankButton.SetEnabled(e)
 	v.mainView.lowerableRankButton.SetEnabled(e)
