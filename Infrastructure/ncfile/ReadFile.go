@@ -33,3 +33,12 @@ func (n *ReadableNcScriptFile) ReadAll(path string) ([]string, error) {
 
 	return lines, nil
 }
+
+func (n *ReadableNcScriptFile) FileExist(file string) bool {
+	if len(file) <= 0 {
+		return false
+	} else if f, err := os.Stat(file); os.IsNotExist(err) || f.IsDir() {
+		return false
+	}
+	return true
+}
