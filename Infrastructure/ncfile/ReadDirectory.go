@@ -3,6 +3,7 @@ package ncfile
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"nc-script-converter/Domain/alterationncscript"
@@ -35,4 +36,13 @@ func (n *NcScriptDir) FetchDir(path string) ([]string, error) {
 	}
 
 	return paths, nil
+}
+
+func (n *NcScriptDir) DirExist(path string) bool {
+	if len(path) <= 0 {
+		return false
+	} else if f, err := os.Stat(path); os.IsNotExist(err) || !f.IsDir() {
+		return false
+	}
+	return true
 }
