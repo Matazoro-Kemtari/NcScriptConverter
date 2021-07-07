@@ -66,6 +66,9 @@ func (v *MainViewController) Initialize() {
 		// 全追加・削除ボタンの有効化
 		v.setAllItemsButtonEnabled()
 
+		// 順位ボタンの有効化
+		v.setRankButtonEnabled()
+
 		// 変換ボタンの有効化
 		v.setConvertButtonEnabled()
 
@@ -93,6 +96,7 @@ func (v *MainViewController) Initialize() {
 		v.mainView.inFileList.AddItems(v.mainView.inFileItems)
 
 		v.setAllItemsButtonEnabled()
+		v.setRankButtonEnabled()
 	})
 
 	// 全ファイル削除イベント
@@ -104,6 +108,7 @@ func (v *MainViewController) Initialize() {
 		v.mainView.dirFilList.AddItems(v.mainView.dirFilItems)
 
 		v.setAllItemsButtonEnabled()
+		v.setRankButtonEnabled()
 	})
 
 	// ファイル追加イベント
@@ -118,6 +123,7 @@ func (v *MainViewController) Initialize() {
 		v.mainView.dirFilList.AddItems(v.mainView.dirFilItems)
 
 		v.setAllItemsButtonEnabled()
+		v.setRankButtonEnabled()
 	})
 
 	// ファイル削除イベント
@@ -132,6 +138,37 @@ func (v *MainViewController) Initialize() {
 		v.mainView.inFileList.AddItems(v.mainView.inFileItems)
 
 		v.setAllItemsButtonEnabled()
+		v.setRankButtonEnabled()
+	})
+
+	// 順位UPイベント
+	v.mainView.raisableRankButton.ConnectClicked(func(checked bool) {
+		i := v.mainView.inFileList.CurrentIndex().Row()
+		if i <= 0 {
+			return
+		}
+		buf := v.mainView.inFileItems[i-1]
+		v.mainView.inFileItems[i-1] = v.mainView.inFileItems[i]
+		v.mainView.inFileItems[i] = buf
+
+		v.mainView.inFileList.Clear()
+		v.mainView.inFileList.AddItems(v.mainView.inFileItems)
+		v.mainView.inFileList.SetCurrentRow(i - 1)
+	})
+
+	// 順位DOWNイベント
+	v.mainView.lowerableRankButton.ConnectClicked(func(checked bool) {
+		i := v.mainView.inFileList.CurrentIndex().Row()
+		if i < 0 || i == len(v.mainView.inFileItems)-1 {
+			return
+		}
+		buf := v.mainView.inFileItems[i+1]
+		v.mainView.inFileItems[i+1] = v.mainView.inFileItems[i]
+		v.mainView.inFileItems[i] = buf
+
+		v.mainView.inFileList.Clear()
+		v.mainView.inFileList.AddItems(v.mainView.inFileItems)
+		v.mainView.inFileList.SetCurrentRow(i + 1)
 	})
 
 	// 結合ファイルの保存先参照イベント
@@ -209,6 +246,12 @@ func (v *MainViewController) setAllItemsButtonEnabled() {
 	v.mainView.allRemoveButton.SetEnabled(len(v.mainView.inFileItems) > 0)
 }
 
+/* 順位操作ボタンの有効化 */
+func (v *MainViewController) setRankButtonEnabled() {
+	v.mainView.raisableRankButton.SetEnabled(len(v.mainView.inFileItems) > 0)
+	v.mainView.lowerableRankButton.SetEnabled(len(v.mainView.inFileItems) > 0)
+}
+
 /* 変換ボタンの有効化 */
 func (v *MainViewController) setConvertButtonEnabled() {
 	v.mainView.cnvButton.SetEnabled(len(v.inPath) > 0 && len(v.outPath) > 0)
@@ -225,8 +268,6 @@ func (v *MainViewController) setListBoxesEnabled() {
 
 	v.mainView.dirFilList.SetEnabled(e)
 	v.mainView.inFileList.SetEnabled(e)
-	v.mainView.raisableRankButton.SetEnabled(e)
-	v.mainView.lowerableRankButton.SetEnabled(e)
 }
 
 /* ファイル一覧の更新 */
