@@ -7,17 +7,24 @@ import (
 	"github.com/therecipe/qt/widgets"
 )
 
+/*
+QListViewのItemを消したりするのができない
+https://github.com/therecipe/examples/blob/master/advanced/widgets/listview/main.go
+だからSliceで代用
+*/
 type MainView struct {
 	version             string
 	window              *widgets.QMainWindow
 	inLabel             *widgets.QLabel
 	inButton            *widgets.QPushButton
 	dirFilList          *widgets.QListWidget
+	dirFilItems         []string
 	allAddButton        *widgets.QPushButton
 	addButton           *widgets.QPushButton
 	removeButton        *widgets.QPushButton
 	allRemoveButton     *widgets.QPushButton
 	inFileList          *widgets.QListWidget
+	inFileItems         []string
 	raisableRankButton  *widgets.QPushButton
 	lowerableRankButton *widgets.QPushButton
 	outButton           *widgets.QPushButton

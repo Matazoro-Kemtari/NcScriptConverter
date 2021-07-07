@@ -81,6 +81,30 @@ func (v *MainViewController) Initialize() {
 		v.mainView.removeButton.SetEnabled(v.mainView.inFileList.CurrentItem().IsSelected())
 	})
 
+	// ファイル追加イベント
+	v.mainView.addButton.ConnectClicked(func(checked bool) {
+		name := v.mainView.dirFilList.CurrentItem().Text()
+		v.mainView.inFileItems = append(v.mainView.inFileItems, name)
+		v.mainView.inFileList.AddItem(name)
+
+		i := v.mainView.dirFilList.CurrentIndex().Row()
+		v.mainView.dirFilItems = remove(v.mainView.dirFilItems, i)
+		v.mainView.dirFilList.Clear()
+		v.mainView.dirFilList.AddItems(v.mainView.dirFilItems)
+	})
+
+	// ファイル削除イベント
+	v.mainView.removeButton.ConnectClicked(func(checked bool) {
+		name := v.mainView.inFileList.CurrentItem().Text()
+		v.mainView.dirFilItems = append(v.mainView.dirFilItems, name)
+		v.mainView.dirFilList.AddItem(name)
+
+		i := v.mainView.inFileList.CurrentIndex().Row()
+		v.mainView.inFileItems = remove(v.mainView.inFileItems, i)
+		v.mainView.inFileList.Clear()
+		v.mainView.inFileList.AddItems(v.mainView.inFileItems)
+	})
+
 	// 結合ファイルの保存先参照イベント
 	v.mainView.outButton.ConnectClicked(func(checked bool) {
 		// ファイルの保存先ダイアログ表示
@@ -181,7 +205,9 @@ func (v *MainViewController) readFileListBox(p string) {
 
 	// ListBoxのクリア
 	v.mainView.dirFilList.Clear()
+	v.mainView.dirFilItems = nil
 	v.mainView.inFileList.Clear()
+	v.mainView.inFileItems = nil
 	v.mainView.addButton.SetEnabled(false)
 	v.mainView.removeButton.SetEnabled(false)
 
@@ -194,6 +220,14 @@ func (v *MainViewController) readFileListBox(p string) {
 		if file.IsDir() {
 			continue
 		}
-		v.mainView.dirFilList.AddItem(file.Name())
+		v.mainView.dirFilItems = append(v.mainView.dirFilItems, file.Name())
 	}
+	v.mainView.dirFilList.AddItems(v.mainView.dirFilItems)
+}
+
+func remove(s []string, i int) []string {
+	if i >= len(s) {
+		return s
+	}
+	return append(s[:i], s[i+1:]...)
 }
