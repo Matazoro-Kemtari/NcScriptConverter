@@ -2,9 +2,12 @@ package mainview
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"nc-script-converter/UseCase/concatenatedscript"
+	"os"
 
+	"github.com/therecipe/qt/core"
 	"github.com/therecipe/qt/widgets"
 )
 
@@ -38,12 +41,7 @@ func (v *MainViewController) Initialize() {
 	// fmt.Println("[終了しました。何かキーを押して終了します]")
 	// scanner.Scan()
 
-	v.showWindow()
-}
-
-func (v *MainViewController) showWindow() {
-
-	// フォルダ参照イベント
+	// NCファイルのフォルダ参照イベント
 	v.mainView.inButton.ConnectClicked(func(checked bool) {
 		// フォルダ選択ダイアログ表示
 		// https://day-journal.com/memo/qt-005/
@@ -57,9 +55,30 @@ func (v *MainViewController) showWindow() {
 		if len(p) > 0 {
 			(*v).inPath = p
 			v.mainView.inLabel.SetText(p)
-			v.setConvertButtonEnabled()
 		}
+
+		// ファイル一覧の有効化
+		v.setListBoxesEnabled()
+
+		// ファイル一覧の更新
+		v.readFileListBox(p)
+
+		// 変換ボタンの有効化
+		v.setConvertButtonEnabled()
+
 		fmt.Println(v.inPath)
+	})
+
+	/* ファイル一覧選択時イベント */
+	v.mainView.dirFilList.ConnectSelectionChanged(func(selected, deselected *core.QItemSelection) {
+		// ファイル追加ボタンの有効化
+		v.mainView.addButton.SetEnabled(v.mainView.dirFilList.CurrentItem().IsSelected())
+	})
+
+	/* ファイル一覧選択時イベント */
+	v.mainView.inFileList.ConnectSelectionChanged(func(selected, deselected *core.QItemSelection) {
+		// ファイル削除ボタンの有効化
+		v.mainView.removeButton.SetEnabled(v.mainView.inFileList.CurrentItem().IsSelected())
 	})
 
 	// 結合ファイルの保存先参照イベント
@@ -76,8 +95,8 @@ func (v *MainViewController) showWindow() {
 		if len(p) > 0 {
 			(*v).outPath = p
 			v.mainView.outLabel.SetText(p)
-			v.setConvertButtonEnabled()
 		}
+		v.setConvertButtonEnabled()
 		log.Println(v.outPath)
 	})
 
@@ -92,10 +111,13 @@ func (v *MainViewController) showWindow() {
 			widgets.QMessageBox_Warning(
 				v.mainView.window,
 				"エラー情報",
-				fmt.Sprintf("深刻なエラーが発生しました:\n"+
-					"進捗リストが送信できていない可能性があります\n"+
-					"再実行しても回復しない場合は管理者へ連絡してください\n"+
-					"%v", err),
+				fmt.Sprintf(
+					"深刻なエラーが発生しました:\n"+
+						"進捗リストが送信できていない可能性があります\n"+
+						"再実行しても回復しない場合は管理者へ連絡してください\n"+
+						"%v",
+					err,
+				),
 				widgets.QMessageBox__Ok,
 				widgets.QMessageBox__Ok,
 			)
@@ -117,13 +139,61 @@ func (v *MainViewController) showWindow() {
 		// v.cnvButton.SetEnabled(!v.cnvButton.IsEnabled())
 	})
 
+	v.setListBoxesEnabled()
 	v.setConvertButtonEnabled()
+	v.mainView.addButton.SetEnabled(false)
+	v.mainView.removeButton.SetEnabled(false)
 
 	v.mainView.window.Show()
 	widgets.QApplication_Exec()
 
 }
 
+/* 変換ボタンの有効化 */
 func (v *MainViewController) setConvertButtonEnabled() {
 	v.mainView.cnvButton.SetEnabled(len(v.inPath) > 0 && len(v.outPath) > 0)
+}
+
+/* ListBoxとボタンの有効化 */
+func (v *MainViewController) setListBoxesEnabled() {
+	var e bool
+	if len(v.inPath) > 0 {
+		if f, err := os.Stat(v.inPath); os.IsExist(err) || f.IsDir() {
+			e = true
+		}
+	}
+
+	v.mainView.dirFilList.SetEnabled(e)
+	v.mainView.allAddButton.SetEnabled(e)
+	v.mainView.allRemoveButton.SetEnabled(e)
+	v.mainView.inFileList.SetEnabled(e)
+	v.mainView.raisableRankButton.SetEnabled(e)
+	v.mainView.lowerableRankButton.SetEnabled(e)
+}
+
+/* ファイル一覧の更新 */
+func (v *MainViewController) readFileListBox(p string) {
+	if len(p) <= 0 {
+		return
+	} else if f, err := os.Stat(v.inPath); os.IsNotExist(err) || !f.IsDir() {
+		return
+	}
+
+	// ListBoxのクリア
+	v.mainView.dirFilList.Clear()
+	v.mainView.inFileList.Clear()
+	v.mainView.addButton.SetEnabled(false)
+	v.mainView.removeButton.SetEnabled(false)
+
+	// ファイル一覧を取得する
+	files, err := ioutil.ReadDir(p)
+	if err != nil {
+		return
+	}
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		v.mainView.dirFilList.AddItem(file.Name())
+	}
 }

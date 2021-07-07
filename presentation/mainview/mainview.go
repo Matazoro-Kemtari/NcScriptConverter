@@ -12,12 +12,12 @@ type MainView struct {
 	window              *widgets.QMainWindow
 	inLabel             *widgets.QLabel
 	inButton            *widgets.QPushButton
-	dirFilList          *widgets.QListView
+	dirFilList          *widgets.QListWidget
 	allAddButton        *widgets.QPushButton
 	addButton           *widgets.QPushButton
 	removeButton        *widgets.QPushButton
 	allRemoveButton     *widgets.QPushButton
-	inFileList          *widgets.QListView
+	inFileList          *widgets.QListWidget
 	raisableRankButton  *widgets.QPushButton
 	lowerableRankButton *widgets.QPushButton
 	outButton           *widgets.QPushButton
@@ -78,12 +78,12 @@ func (m *MainView) viewDesign() {
 	hbox1 := widgets.NewQHBoxLayout()
 	hbox1.SetSpacing(5)
 	hbox1.AddWidget(label1, 0, core.Qt__AlignLeft)
-	hbox1.AddWidget((*m).inLabel, 0, core.Qt__AlignCenter)
+	hbox1.AddWidget((*m).inLabel, 0, core.Qt__AlignBaseline)
 	hbox1.AddWidget((*m).inButton, 0, core.Qt__AlignRight)
 
 	// ディレクトリ内のファイル一覧
 	label3 := widgets.NewQLabel2("ファイル一覧", nil, 0)
-	(*m).dirFilList = widgets.NewQListView(nil)
+	(*m).dirFilList = widgets.NewQListWidget(nil)
 	vbox1 := widgets.NewQVBoxLayout()
 	vbox1.AddWidget(label3, 0, core.Qt__AlignBaseline)
 	vbox1.AddWidget(m.dirFilList, 0, core.Qt__AlignBaseline)
@@ -101,7 +101,7 @@ func (m *MainView) viewDesign() {
 
 	// 対象NCファイル一覧
 	label4 := widgets.NewQLabel2("対象NCファイル", nil, 0)
-	(*m).inFileList = widgets.NewQListView(nil)
+	(*m).inFileList = widgets.NewQListWidget(nil)
 	vbox3 := widgets.NewQVBoxLayout()
 	vbox3.AddWidget(label4, 0, core.Qt__AlignBaseline)
 	vbox3.AddWidget(m.inFileList, 0, core.Qt__AlignBaseline)
