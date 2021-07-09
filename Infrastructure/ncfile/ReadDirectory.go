@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 
 	"nc-script-converter/Domain/alterationncscript"
 )
@@ -32,7 +31,7 @@ func (n *NcScriptDir) FetchDir(path string) ([]string, error) {
 			// ディレクトリは無視
 			continue
 		}
-		paths = append(paths, filepath.Join(path, file.Name()))
+		paths = append(paths, file.Name())
 	}
 
 	return paths, nil

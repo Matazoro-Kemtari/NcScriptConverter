@@ -2,7 +2,6 @@ package mainview
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"nc-script-converter/UseCase/concatenatedscript"
 	"os"
@@ -97,6 +96,7 @@ func (v *MainViewController) Initialize() {
 
 		v.setAllItemsButtonEnabled()
 		v.setRankButtonEnabled()
+		v.setConvertButtonEnabled()
 	})
 
 	// 全ファイル削除イベント
@@ -109,6 +109,7 @@ func (v *MainViewController) Initialize() {
 
 		v.setAllItemsButtonEnabled()
 		v.setRankButtonEnabled()
+		v.setConvertButtonEnabled()
 	})
 
 	// ファイル追加イベント
@@ -124,6 +125,7 @@ func (v *MainViewController) Initialize() {
 
 		v.setAllItemsButtonEnabled()
 		v.setRankButtonEnabled()
+		v.setConvertButtonEnabled()
 	})
 
 	// ファイル削除イベント
@@ -139,6 +141,7 @@ func (v *MainViewController) Initialize() {
 
 		v.setAllItemsButtonEnabled()
 		v.setRankButtonEnabled()
+		v.setConvertButtonEnabled()
 	})
 
 	// 順位UPイベント
@@ -194,7 +197,7 @@ func (v *MainViewController) Initialize() {
 	v.mainView.cnvButton.ConnectClicked(func(checked bool) {
 		v.mainView.cnvButton.SetEnabled(!v.mainView.cnvButton.IsEnabled())
 		// 起動
-		if err := v.concat.ConcatenatedNcScript(v.inPath, v.outPath); err != nil {
+		if err := v.concat.ConcatenatedNcScript(v.inPath, v.mainView.inFileItems, v.outPath); err != nil {
 			// エラーメッセージ
 			log.Println("error:", "進捗リスト送信でエラー:", err)
 
@@ -234,6 +237,7 @@ func (v *MainViewController) Initialize() {
 	v.setAllItemsButtonEnabled()
 	v.mainView.addButton.SetEnabled(false)
 	v.mainView.removeButton.SetEnabled(false)
+	v.setRankButtonEnabled()
 
 	v.mainView.window.Show()
 	widgets.QApplication_Exec()
@@ -254,7 +258,7 @@ func (v *MainViewController) setRankButtonEnabled() {
 
 /* 変換ボタンの有効化 */
 func (v *MainViewController) setConvertButtonEnabled() {
-	v.mainView.cnvButton.SetEnabled(len(v.inPath) > 0 && len(v.outPath) > 0)
+	v.mainView.cnvButton.SetEnabled(len(v.mainView.inFileItems) > 0 && len(v.outPath) > 0)
 }
 
 /* ListBoxとボタンの有効化 */
@@ -272,9 +276,7 @@ func (v *MainViewController) setListBoxesEnabled() {
 
 /* ファイル一覧の更新 */
 func (v *MainViewController) readFileListBox(p string) {
-	if len(p) <= 0 {
-		return
-	} else if f, err := os.Stat(v.inPath); os.IsNotExist(err) || !f.IsDir() {
+	if !v.concat.DirectoryExist(v.inPath) {
 		return
 	}
 
@@ -287,16 +289,11 @@ func (v *MainViewController) readFileListBox(p string) {
 	v.mainView.removeButton.SetEnabled(false)
 
 	// ファイル一覧を取得する
-	files, err := ioutil.ReadDir(p)
+	files, err := v.concat.FetchFileNames(p)
 	if err != nil {
 		return
 	}
-	for _, file := range files {
-		if file.IsDir() {
-			continue
-		}
-		v.mainView.dirFilItems = append(v.mainView.dirFilItems, file.Name())
-	}
+	v.mainView.dirFilItems = append(v.mainView.dirFilItems, files...)
 	v.mainView.dirFilList.AddItems(v.mainView.dirFilItems)
 }
 

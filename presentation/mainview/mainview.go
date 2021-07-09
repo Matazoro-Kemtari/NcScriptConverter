@@ -128,12 +128,13 @@ func (m *MainView) viewDesign() {
 	hbox3.AddLayout(vbox4, 0)
 
 	// 結合ファイルの保存先
-	hbox2 := widgets.NewQHBoxLayout()
 	label2 := widgets.NewQLabel2("結合ファイルの保存先", nil, 0)
-	(*m).outButton = widgets.NewQPushButton2("参照", nil)
-	hbox2.AddWidget(label2, 0, core.Qt__AlignTrailing)
-	hbox2.AddWidget(m.outButton, 0, core.Qt__AlignBaseline)
 	(*m).outLabel = widgets.NewQLabel2("", nil, 0)
+	(*m).outButton = widgets.NewQPushButton2("参照", nil)
+	hbox2 := widgets.NewQHBoxLayout()
+	hbox2.AddWidget(label2, 0, core.Qt__AlignLeft)
+	hbox2.AddWidget(m.outLabel, 0, core.Qt__AlignBaseline)
+	hbox2.AddWidget(m.outButton, 0, core.Qt__AlignRight)
 
 	// コンバートの指定
 	m.cnvButton = widgets.NewQPushButton2("実行", nil)
@@ -145,7 +146,6 @@ func (m *MainView) viewDesign() {
 	// vbox.AddWidget(v.inLabel, 0, core.Qt__AlignBaseline)
 	vbox.AddLayout(hbox3, 0)
 	vbox.AddLayout(hbox2, 0)
-	vbox.AddWidget(m.outLabel, 0, core.Qt__AlignBaseline)
 	vbox.AddWidget(m.cnvButton, 0, core.Qt__AlignBaseline)
 
 }
