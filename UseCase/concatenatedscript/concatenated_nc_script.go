@@ -3,16 +3,29 @@ package concatenatedscript
 import "nc-script-converter/Domain/alterationncscript"
 
 type ConcatenatedNcScriptUseCase struct {
-	concat *alterationncscript.CombinedNcScript
+	concat        *alterationncscript.CombinedNcScript
+	readDirectory *alterationncscript.DirViewer
 }
 
-func NewConcatenatedNcScriptUseCase(concat *alterationncscript.CombinedNcScript) *ConcatenatedNcScriptUseCase {
+func NewConcatenatedNcScriptUseCase(
+	concat *alterationncscript.CombinedNcScript,
+	readDirectory *alterationncscript.DirViewer,
+) *ConcatenatedNcScriptUseCase {
 	return &ConcatenatedNcScriptUseCase{
-		concat: concat,
+		concat:        concat,
+		readDirectory: readDirectory,
 	}
 }
 
-func (c *ConcatenatedNcScriptUseCase) ConcatenatedNcScript(inPath string, outPath string) error {
+func (c *ConcatenatedNcScriptUseCase) ConcatenatedNcScript(inPath string, inFiles []string, outPath string) error {
 	// そのままドメイン層に委譲
-	return c.concat.CombineNcScript(inPath, outPath)
+	return c.concat.CombineNcScript(inPath, inFiles, outPath)
+}
+
+func (c *ConcatenatedNcScriptUseCase) DirectoryExist(dirPath string) bool {
+	return (*c.readDirectory).DirExist(dirPath)
+}
+
+func (c *ConcatenatedNcScriptUseCase) FetchFileNames(dirPath string) ([]string, error) {
+	return (*c.readDirectory).FetchDir(dirPath)
 }

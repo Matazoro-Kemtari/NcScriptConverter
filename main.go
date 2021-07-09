@@ -57,8 +57,10 @@ func main() {
 		alterationncscript.NewConvertedNcScript(),
 		ncfile.NewWritableNcScriptFile(),
 	)
+	dir := ncfile.NewNcScriptDir()
 	concatUseCase := concatenatedscript.NewConcatenatedNcScriptUseCase(
 		combinedNcScript,
+		dir,
 	)
 
 	mv := mainview.NewMainViewController(fmt.Sprintf("%s.%s", version, revision), concatUseCase)
