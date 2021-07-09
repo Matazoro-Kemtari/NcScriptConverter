@@ -193,8 +193,15 @@ func (v *MainViewController) Initialize() {
 		log.Println(v.outPath)
 	})
 
+	// オープンレビューチェック
+	var canOpenReview bool
+	v.mainView.openReviewCheckBox.ConnectClicked(func(checked bool) {
+		canOpenReview = checked
+	})
+
 	// コンバートの指定
 	v.mainView.cnvButton.ConnectClicked(func(checked bool) {
+		fmt.Println(canOpenReview)
 		v.mainView.cnvButton.SetEnabled(!v.mainView.cnvButton.IsEnabled())
 		// 起動
 		if err := v.concat.ConcatenatedNcScript(v.inPath, v.mainView.inFileItems, v.outPath); err != nil {
