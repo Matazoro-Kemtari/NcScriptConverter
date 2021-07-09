@@ -43,9 +43,9 @@ func TestNcScriptDir_FetchDir(t *testing.T) {
 				path: "./testdata",
 			},
 			want: []string{
-				"testdata\\dummy.csv",
-				"testdata\\output_newScript",
-				"testdata\\test.txt",
+				"dummy.csv",
+				"output_newScript",
+				"test.txt",
 			},
 			wantErr: false,
 		},
@@ -56,9 +56,9 @@ func TestNcScriptDir_FetchDir(t *testing.T) {
 				path: "./testdata/",
 			},
 			want: []string{
-				"testdata\\dummy.csv",
-				"testdata\\output_newScript",
-				"testdata\\test.txt",
+				"dummy.csv",
+				"output_newScript",
+				"test.txt",
 			},
 			wantErr: false,
 		},
@@ -81,6 +81,62 @@ func TestNcScriptDir_FetchDir(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NcScriptDir.FetchDir() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNcScriptDir_DirExist(t *testing.T) {
+	type args struct {
+		path string
+	}
+	tests := []struct {
+		name string
+		n    *NcScriptDir
+		args args
+		want bool
+	}{
+		{
+			name: "正常系_存在するファイル",
+			n:    new(NcScriptDir),
+			args: args{path: "testdata/dummy.csv"},
+			want: false,
+		},
+		{
+			name: "正常系_存在しないファイル",
+			n:    new(NcScriptDir),
+			args: args{path: "testdata/nothing.csv"},
+			want: false,
+		},
+		{
+			name: "正常系_存在するディレクトリ",
+			n:    new(NcScriptDir),
+			args: args{path: "testdata/dir"},
+			want: true,
+		},
+		{
+			name: "正常系_存在するディレクトリ(／付き)",
+			n:    new(NcScriptDir),
+			args: args{path: "testdata/dir/"},
+			want: true,
+		},
+		{
+			name: "正常系_存在しないディレクトリ",
+			n:    new(NcScriptDir),
+			args: args{path: "testdata/nothingdir"},
+			want: false,
+		},
+		{
+			name: "正常系_存在しないディレクトリ(／付き)",
+			n:    new(NcScriptDir),
+			args: args{path: "testdata/nothingdir/"},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.n.DirExist(tt.args.path); got != tt.want {
+				t.Errorf("NcScriptDir.DirExist() = %v, want %v", got, tt.want)
 			}
 		})
 	}

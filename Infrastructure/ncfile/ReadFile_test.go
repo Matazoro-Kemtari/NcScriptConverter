@@ -80,3 +80,47 @@ func TestNcScriptFile_ReadAll(t *testing.T) {
 		})
 	}
 }
+
+func TestReadableNcScriptFile_FileExist(t *testing.T) {
+	type args struct {
+		file string
+	}
+	tests := []struct {
+		name string
+		n    *ReadableNcScriptFile
+		args args
+		want bool
+	}{
+		{
+			name: "正常系_ファイルが存在すること",
+			n:    new(ReadableNcScriptFile),
+			args: args{file: "testdata/dummy.csv"},
+			want: true,
+		},
+		{
+			name: "正常系_存在しないファイル",
+			n:    new(ReadableNcScriptFile),
+			args: args{file: "testdata/nothing.csv"},
+			want: false,
+		},
+		{
+			name: "正常系_ディレクトリ",
+			n:    new(ReadableNcScriptFile),
+			args: args{file: "testdata/dir"},
+			want: false,
+		},
+		{
+			name: "正常系_ディレクトリ(／付き)",
+			n:    new(ReadableNcScriptFile),
+			args: args{file: "testdata/dir/"},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.n.FileExist(tt.args.file); got != tt.want {
+				t.Errorf("ReadableNcScriptFile.FileExist() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

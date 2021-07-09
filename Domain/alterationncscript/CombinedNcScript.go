@@ -3,7 +3,7 @@ package alterationncscript
 import (
 	"fmt"
 	"log"
-	"sort"
+	"path/filepath"
 )
 
 type CombinedNcScript struct {
@@ -22,29 +22,19 @@ func NewCombinedNcScript(dir *DirViewer, fr *FileReader, cnv *ConvertedNcScript,
 	}
 }
 
-func (c *CombinedNcScript) CombineNcScript(inPath string, outPath string) error {
-	// ファイル一覧取得
-	log.Printf("info: ファイルの一覧を取得します Folder: %s\n", inPath)
-	files, err := (*c.dir).FetchDir(inPath)
-	if err != nil {
-		return err
-	}
-	if len(files) == 0 {
-		return fmt.Errorf("このフォルダは空です")
-	}
-
-	// ファイル名順にする
-	log.Print("info: 取得したファイル名を並び替えます before: ", files, ",")
-	sort.Slice(files, func(i, j int) bool {
-		return files[i] < files[j]
-	})
-	log.Println("after: ", files)
-
+func (c *CombinedNcScript) CombineNcScript(inPath string, inFiles []string, outPath string) error {
 	// ファイルの読み込み
 	var conLine []string
-	for i, fPath := range files {
-		log.Printf("info: ファイルを読み込みます[%d/%d] file: %s\n", i, len(fPath), fPath)
-		lines, err := (*c.fr).ReadAll(fPath)
+	for i, file := range inFiles {
+		log.Println("info:ファイル存在確認 file:", inPath, file)
+		f := filepath.Join(inPath, file)
+		if !(*c.fr).FileExist(f) {
+			log.Println("ファイルが存在しません", f)
+			return fmt.Errorf("ファイルが存在しません %s", f)
+		}
+
+		log.Printf("info: ファイルを読み込みます[%d/%d] file: %s\n", i+1, len(inFiles), file)
+		lines, err := (*c.fr).ReadAll(f)
 		if err != nil {
 			return err
 		}
