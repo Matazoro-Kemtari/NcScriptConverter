@@ -229,7 +229,20 @@ func (v *MainViewController) Initialize() {
 		)
 		v.mainView.inLabel.Clear()
 		v.mainView.outLabel.Clear()
-		// v.cnvButton.SetEnabled(!v.cnvButton.IsEnabled())
+		v.mainView.dirFilList.Clear()
+		v.mainView.dirFilItems = nil
+		v.mainView.inFileList.Clear()
+		v.mainView.inFileItems = nil
+
+		// ファイル一覧の有効化
+		v.setListBoxesEnabled()
+
+		// 全追加・削除ボタンの有効化
+		v.setAllItemsButtonEnabled()
+
+		// 順位ボタンの有効化
+		v.setRankButtonEnabled()
+
 	})
 
 	v.setListBoxesEnabled()
