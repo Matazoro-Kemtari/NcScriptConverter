@@ -12,12 +12,12 @@ func TestNewConvertedNcScript(t *testing.T) {
 	}{
 		{
 			name: "正常系_オブジェクト生成できること",
-			want: new(ConvertedNcScript),
+			want: NewConvertedNcScript(false),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewConvertedNcScript(); !reflect.DeepEqual(got, tt.want) {
+			if got := NewConvertedNcScript(false); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewConvertedNcScript() = %v, want %v", got, tt.want)
 			}
 		})
@@ -37,7 +37,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 	}{
 		{
 			name: "正常系_カッタースクリプトが変換されること",
-			c:    new(ConvertedNcScript),
+			c:    NewConvertedNcScript(false),
 			args: args{
 				[]string{
 					"%",
@@ -83,7 +83,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 		},
 		{
 			name: "正常系_センタードリルスクリプトが変換されること",
-			c:    new(ConvertedNcScript),
+			c:    NewConvertedNcScript(false),
 			args: args{
 				[]string{
 					"%",
@@ -126,7 +126,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 		},
 		{
 			name: "正常系_下穴ドリルスクリプトが変換されること",
-			c:    new(ConvertedNcScript),
+			c:    NewConvertedNcScript(false),
 			args: args{
 				[]string{
 					"%",
@@ -169,7 +169,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 		},
 		{
 			name: "正常系_リーマスクリプトが変換されること",
-			c:    new(ConvertedNcScript),
+			c:    NewConvertedNcScript(false),
 			args: args{
 				[]string{
 					"%",
@@ -213,7 +213,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 		},
 		{
 			name: "正常系_カッタースクリプトが変換されること",
-			c:    new(ConvertedNcScript),
+			c:    NewConvertedNcScript(false),
 			args: args{
 				[]string{
 					"%",
@@ -249,6 +249,59 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 				"G91G0G28B0",
 				"G91G0G28C0",
 				"(M30)",
+				"",
+			},
+			wantErr: false,
+		},
+		{
+			name: "正常系_オープンレビュー変換されること",
+			c:    NewConvertedNcScript(true),
+			args: args{
+				[]string{
+					"%",
+					"O4701",
+					"(20T-1147 216A HON)",
+					"(D50XR3 BXD ZENSYU ARA)",
+					"(STARTPOINT X0. Y0. Z100.)",
+					"(LASTPOINT Z100.)",
+					"(TIME 3 MIN )",
+					"(T16)",
+					"(S4500)",
+					"G91Z0.",
+					"G0X-77.34Y121.073",
+					"Z0.",
+					"Z-81.",
+					"G1Z-19.F2600.",
+					"G2X45.5Y45.5I45.5J0.",
+					"M30",
+					"G3X5.Y5.I0.J5.",
+					"G54",
+					"G1Y30.",
+					"G0G40Z139.",
+					"Z0.",
+					"G90X0.Y0.",
+					"M99",
+					"%",
+				},
+			},
+			want: []string{
+				"",
+				"(O4701)",
+				"(20T-1147 216A HON)",
+				"(D50XR3 BXD ZENSYU ARA)",
+				"(STARTPOINT X0. Y0. Z100.)",
+				"(LASTPOINT Z100.)",
+				"(TIME 3 MIN )",
+				"T16",
+				"M6 Q0",
+				"G91G0G28Z0",
+				"G54",
+				"G90G0X0Y0",
+				"G0B0C0",
+				"G0W0",
+				"G43Z100.H16",
+				"M01",
+				"(M99)",
 				"",
 			},
 			wantErr: false,
