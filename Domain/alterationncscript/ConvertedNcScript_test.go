@@ -12,12 +12,12 @@ func TestNewConvertedNcScript(t *testing.T) {
 	}{
 		{
 			name: "正常系_オブジェクト生成できること",
-			want: NewConvertedNcScript(false),
+			want: NewConvertedNcScript(),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewConvertedNcScript(false); !reflect.DeepEqual(got, tt.want) {
+			if got := NewConvertedNcScript(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewConvertedNcScript() = %v, want %v", got, tt.want)
 			}
 		})
@@ -26,7 +26,8 @@ func TestNewConvertedNcScript(t *testing.T) {
 
 func TestConvertedNcScript_Convert(t *testing.T) {
 	type args struct {
-		source []string
+		source        []string
+		canOpenReview bool
 	}
 	tests := []struct {
 		name    string
@@ -37,7 +38,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 	}{
 		{
 			name: "正常系_カッタースクリプトが変換されること",
-			c:    NewConvertedNcScript(false),
+			c:    NewConvertedNcScript(),
 			args: args{
 				[]string{
 					"%",
@@ -51,6 +52,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 					"M99",
 					"%",
 				},
+				false,
 			},
 			want: []string{
 				"",
@@ -83,7 +85,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 		},
 		{
 			name: "正常系_センタードリルスクリプトが変換されること",
-			c:    NewConvertedNcScript(false),
+			c:    NewConvertedNcScript(),
 			args: args{
 				[]string{
 					"%",
@@ -97,6 +99,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 					"M99",
 					"%",
 				},
+				false,
 			},
 			want: []string{
 				"",
@@ -126,7 +129,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 		},
 		{
 			name: "正常系_下穴ドリルスクリプトが変換されること",
-			c:    NewConvertedNcScript(false),
+			c:    NewConvertedNcScript(),
 			args: args{
 				[]string{
 					"%",
@@ -140,6 +143,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 					"M99",
 					"%",
 				},
+				false,
 			},
 			want: []string{
 				"",
@@ -169,7 +173,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 		},
 		{
 			name: "正常系_リーマスクリプトが変換されること",
-			c:    NewConvertedNcScript(false),
+			c:    NewConvertedNcScript(),
 			args: args{
 				[]string{
 					"%",
@@ -183,6 +187,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 					"M99",
 					"%",
 				},
+				false,
 			},
 			want: []string{
 				"M00",
@@ -213,7 +218,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 		},
 		{
 			name: "正常系_カッタースクリプトが変換されること",
-			c:    NewConvertedNcScript(false),
+			c:    NewConvertedNcScript(),
 			args: args{
 				[]string{
 					"%",
@@ -226,6 +231,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 					"M30",
 					"%",
 				},
+				false,
 			},
 			want: []string{
 				"",
@@ -255,7 +261,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 		},
 		{
 			name: "正常系_オープンレビュー変換されること",
-			c:    NewConvertedNcScript(true),
+			c:    NewConvertedNcScript(),
 			args: args{
 				[]string{
 					"%",
@@ -283,6 +289,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 					"M99",
 					"%",
 				},
+				true,
 			},
 			want: []string{
 				"",
@@ -309,7 +316,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.c.Convert(tt.args.source)
+			got, err := tt.c.Convert(tt.args.source, tt.args.canOpenReview)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ConvertedNcScript.Convert() error = %v, wantErr %v", err, tt.wantErr)
 				return

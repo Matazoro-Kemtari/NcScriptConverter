@@ -5,17 +5,13 @@ import (
 	"regexp"
 )
 
-type ConvertedNcScript struct {
-	canOpenReview bool
+type ConvertedNcScript struct{}
+
+func NewConvertedNcScript() *ConvertedNcScript {
+	return &ConvertedNcScript{}
 }
 
-func NewConvertedNcScript(canOpenReview bool) *ConvertedNcScript {
-	return &ConvertedNcScript{
-		canOpenReview: canOpenReview,
-	}
-}
-
-func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
+func (c *ConvertedNcScript) Convert(source []string, canOpenReview bool) ([]string, error) {
 	if len(source) == 0 {
 		return nil, fmt.Errorf("変換対象がありません")
 	}
@@ -57,7 +53,7 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 			res = append(res, "G43Z100.H"+toolNums[0][0])
 			res = append(res, "M01")
 
-			if c.canOpenReview {
+			if canOpenReview {
 				// 以降の行は破棄
 				canDropLineOpenreview = true
 			}
