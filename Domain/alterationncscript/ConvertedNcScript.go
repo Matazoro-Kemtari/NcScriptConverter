@@ -11,13 +11,14 @@ func NewConvertedNcScript() *ConvertedNcScript {
 	return &ConvertedNcScript{}
 }
 
-func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
+func (c *ConvertedNcScript) Convert(source []string, canOpenReview bool) ([]string, error) {
 	if len(source) == 0 {
 		return nil, fmt.Errorf("変換対象がありません")
 	}
 
 	isHoleSource := c.isHoleSource(source)
 	isReamerSource := c.isReamerSource(source)
+	canDropLineOpenreview := false
 
 	var res []string
 	regPercent := regexp.MustCompile(`^%$`)
@@ -31,7 +32,7 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 	regM99 := regexp.MustCompile(`^M99$`)
 	regM30 := regexp.MustCompile(`^M30$`)
 	regG54 := regexp.MustCompile(`^G54$`)
-	if isReamerSource {
+	if !canOpenReview && isReamerSource {
 		res = append(res, "M00")
 	}
 	for i := range source {
@@ -51,7 +52,12 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 			res = append(res, "G0W0")
 			res = append(res, "G43Z100.H"+toolNums[0][0])
 			res = append(res, "M01")
-		} else if regSpindle.MatchString(source[i]) {
+
+			if canOpenReview {
+				// 以降の行は破棄
+				canDropLineOpenreview = true
+			}
+		} else if !canDropLineOpenreview && regSpindle.MatchString(source[i]) {
 			r := regexp.MustCompile(`S\d{4}`)
 			spindle := r.FindAllStringSubmatch(source[i], 1)
 			res = append(res, spindle[0][0]+"M3")
@@ -59,13 +65,13 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 			if !isHoleSource {
 				res = append(res, "G05.1Q1")
 			}
-		} else if regG82.MatchString(source[i]) {
+		} else if !canDropLineOpenreview && regG82.MatchString(source[i]) {
 			res = append(res, "G98G82R2.0Z-1.0Q2.0P500F180L0")
-		} else if regG83.MatchString(source[i]) {
+		} else if !canDropLineOpenreview && regG83.MatchString(source[i]) {
 			res = append(res, "G98G83R2.0 Z-45.Q2.0F180L0")
-		} else if regG85.MatchString(source[i]) {
+		} else if !canDropLineOpenreview && regG85.MatchString(source[i]) {
 			res = append(res, "G98G85R2.0 Z-35.F150L0")
-		} else if regX0Y0.MatchString(source[i]) {
+		} else if !canDropLineOpenreview && regX0Y0.MatchString(source[i]) {
 			res = append(res, source[i])
 			// 次の行が"M99"の場合
 			if isHoleSource && len(source) > i && regM99.MatchString(source[i+1]) {
@@ -77,21 +83,26 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 			if isHoleSource {
 				res = append(res, "(M99)")
 			} else {
-				res = append(res, "G05.1Q0")
-				res = append(res, "M5")
-				res = append(res, "M9")
-				res = append(res, "G91G0G28Z0")
+				if !canDropLineOpenreview {
+					res = append(res, "G05.1Q0")
+					res = append(res, "M5")
+					res = append(res, "M9")
+					res = append(res, "G91G0G28Z0")
+				}
 				res = append(res, "(M99)")
 			}
-		} else if regM30.MatchString(source[i]) {
+
+			// リセット
+			canDropLineOpenreview = false
+		} else if !canDropLineOpenreview && regM30.MatchString(source[i]) {
 			res = append(res, "G91G0G28Z0")
 			res = append(res, "G91G0G28B0")
 			res = append(res, "G91G0G28C0")
 			res = append(res, "(M30)")
-		} else if regG54.MatchString(source[i]) {
+		} else if !canDropLineOpenreview && regG54.MatchString(source[i]) {
 			res = append(res, "G49")
 			res = append(res, "G54")
-		} else {
+		} else if !canDropLineOpenreview {
 			res = append(res, source[i])
 		}
 	}

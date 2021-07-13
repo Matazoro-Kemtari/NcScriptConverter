@@ -12,7 +12,7 @@ func TestNewConvertedNcScript(t *testing.T) {
 	}{
 		{
 			name: "正常系_オブジェクト生成できること",
-			want: new(ConvertedNcScript),
+			want: NewConvertedNcScript(),
 		},
 	}
 	for _, tt := range tests {
@@ -26,7 +26,8 @@ func TestNewConvertedNcScript(t *testing.T) {
 
 func TestConvertedNcScript_Convert(t *testing.T) {
 	type args struct {
-		source []string
+		source        []string
+		canOpenReview bool
 	}
 	tests := []struct {
 		name    string
@@ -37,7 +38,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 	}{
 		{
 			name: "正常系_カッタースクリプトが変換されること",
-			c:    new(ConvertedNcScript),
+			c:    NewConvertedNcScript(),
 			args: args{
 				[]string{
 					"%",
@@ -51,6 +52,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 					"M99",
 					"%",
 				},
+				false,
 			},
 			want: []string{
 				"",
@@ -83,7 +85,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 		},
 		{
 			name: "正常系_センタードリルスクリプトが変換されること",
-			c:    new(ConvertedNcScript),
+			c:    NewConvertedNcScript(),
 			args: args{
 				[]string{
 					"%",
@@ -97,6 +99,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 					"M99",
 					"%",
 				},
+				false,
 			},
 			want: []string{
 				"",
@@ -126,7 +129,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 		},
 		{
 			name: "正常系_下穴ドリルスクリプトが変換されること",
-			c:    new(ConvertedNcScript),
+			c:    NewConvertedNcScript(),
 			args: args{
 				[]string{
 					"%",
@@ -140,6 +143,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 					"M99",
 					"%",
 				},
+				false,
 			},
 			want: []string{
 				"",
@@ -169,7 +173,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 		},
 		{
 			name: "正常系_リーマスクリプトが変換されること",
-			c:    new(ConvertedNcScript),
+			c:    NewConvertedNcScript(),
 			args: args{
 				[]string{
 					"%",
@@ -183,6 +187,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 					"M99",
 					"%",
 				},
+				false,
 			},
 			want: []string{
 				"M00",
@@ -213,7 +218,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 		},
 		{
 			name: "正常系_カッタースクリプトが変換されること",
-			c:    new(ConvertedNcScript),
+			c:    NewConvertedNcScript(),
 			args: args{
 				[]string{
 					"%",
@@ -226,6 +231,7 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 					"M30",
 					"%",
 				},
+				false,
 			},
 			want: []string{
 				"",
@@ -253,10 +259,64 @@ func TestConvertedNcScript_Convert(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "正常系_オープンレビュー変換されること",
+			c:    NewConvertedNcScript(),
+			args: args{
+				[]string{
+					"%",
+					"O4701",
+					"(20T-1147 216A HON)",
+					"(D50XR3 BXD ZENSYU ARA)",
+					"(STARTPOINT X0. Y0. Z100.)",
+					"(LASTPOINT Z100.)",
+					"(TIME 3 MIN )",
+					"(T16)",
+					"(S4500)",
+					"G91Z0.",
+					"G0X-77.34Y121.073",
+					"Z0.",
+					"Z-81.",
+					"G1Z-19.F2600.",
+					"G2X45.5Y45.5I45.5J0.",
+					"M30",
+					"G3X5.Y5.I0.J5.",
+					"G54",
+					"G1Y30.",
+					"G0G40Z139.",
+					"Z0.",
+					"G90X0.Y0.",
+					"M99",
+					"%",
+				},
+				true,
+			},
+			want: []string{
+				"",
+				"(O4701)",
+				"(20T-1147 216A HON)",
+				"(D50XR3 BXD ZENSYU ARA)",
+				"(STARTPOINT X0. Y0. Z100.)",
+				"(LASTPOINT Z100.)",
+				"(TIME 3 MIN )",
+				"T16",
+				"M6 Q0",
+				"G91G0G28Z0",
+				"G54",
+				"G90G0X0Y0",
+				"G0B0C0",
+				"G0W0",
+				"G43Z100.H16",
+				"M01",
+				"(M99)",
+				"",
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.c.Convert(tt.args.source)
+			got, err := tt.c.Convert(tt.args.source, tt.args.canOpenReview)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ConvertedNcScript.Convert() error = %v, wantErr %v", err, tt.wantErr)
 				return
