@@ -193,11 +193,17 @@ func (v *MainViewController) Initialize() {
 		log.Println(v.outPath)
 	})
 
+	// オープンレビューチェック
+	var canOpenReview bool
+	v.mainView.openReviewCheckBox.ConnectClicked(func(checked bool) {
+		canOpenReview = checked
+	})
+
 	// コンバートの指定
 	v.mainView.cnvButton.ConnectClicked(func(checked bool) {
 		v.mainView.cnvButton.SetEnabled(!v.mainView.cnvButton.IsEnabled())
 		// 起動
-		if err := v.concat.ConcatenatedNcScript(v.inPath, v.mainView.inFileItems, v.outPath); err != nil {
+		if err := v.concat.ConcatenatedNcScript(v.inPath, v.mainView.inFileItems, v.outPath, canOpenReview); err != nil {
 			// エラーメッセージ
 			log.Println("error:", "進捗リスト送信でエラー:", err)
 
@@ -228,7 +234,9 @@ func (v *MainViewController) Initialize() {
 			widgets.QMessageBox__Ok,
 		)
 		v.mainView.inLabel.Clear()
+		v.inPath = ""
 		v.mainView.outLabel.Clear()
+		v.outPath = ""
 		v.mainView.dirFilList.Clear()
 		v.mainView.dirFilItems = nil
 		v.mainView.inFileList.Clear()

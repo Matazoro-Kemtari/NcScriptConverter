@@ -17,9 +17,9 @@ func NewConcatenatedNcScriptUseCase(
 	}
 }
 
-func (c *ConcatenatedNcScriptUseCase) ConcatenatedNcScript(inPath string, inFiles []string, outPath string) error {
+func (c *ConcatenatedNcScriptUseCase) ConcatenatedNcScript(inPath string, inFiles []string, outPath string, canOpenReview bool) error {
 	// そのままドメイン層に委譲
-	return c.concat.CombineNcScript(inPath, inFiles, outPath)
+	return c.concat.CombineNcScript(inPath, inFiles, outPath, canOpenReview)
 }
 
 func (c *ConcatenatedNcScriptUseCase) DirectoryExist(dirPath string) bool {
