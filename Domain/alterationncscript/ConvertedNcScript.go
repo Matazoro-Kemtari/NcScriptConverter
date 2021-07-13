@@ -32,7 +32,7 @@ func (c *ConvertedNcScript) Convert(source []string, canOpenReview bool) ([]stri
 	regM99 := regexp.MustCompile(`^M99$`)
 	regM30 := regexp.MustCompile(`^M30$`)
 	regG54 := regexp.MustCompile(`^G54$`)
-	if isReamerSource {
+	if !canOpenReview && isReamerSource {
 		res = append(res, "M00")
 	}
 	for i := range source {
