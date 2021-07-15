@@ -22,7 +22,7 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 	regPercent := regexp.MustCompile(`^%$`)
 	regFdNo := regexp.MustCompile(`^O\d{4}$`)
 	regTool := regexp.MustCompile(`^\(T[1234]?\d\)$`)
-	regSpindle := regexp.MustCompile(`^\(S\d{4}\)$`)
+	regSpindle := regexp.MustCompile(`^\(S\d{2,4}\)$`)
 	regG82 := regexp.MustCompile(`^\(G82\)$`)
 	regG83 := regexp.MustCompile(`^\(G83\)$`)
 	regG84 := regexp.MustCompile(`^\(G84\)$`)
@@ -52,7 +52,7 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 			res = append(res, "G43Z100.H"+toolNums[0][0])
 			res = append(res, "M01")
 		} else if regSpindle.MatchString(source[i]) {
-			r := regexp.MustCompile(`S\d{4}`)
+			r := regexp.MustCompile(`S\d{2,4}`)
 			spindle := r.FindAllStringSubmatch(source[i], 1)
 			res = append(res, spindle[0][0]+"M3")
 			res = append(res, "M8")
