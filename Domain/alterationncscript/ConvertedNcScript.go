@@ -21,7 +21,7 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 	var res []string
 	regPercent := regexp.MustCompile(`^%$`)
 	regFdNo := regexp.MustCompile(`^O\d{4}$`)
-	regTool := regexp.MustCompile(`^\(T[1234]\d\)$`)
+	regTool := regexp.MustCompile(`^\(T[1234]?\d\)$`)
 	regSpindle := regexp.MustCompile(`^\(S\d{4}\)$`)
 	regG82 := regexp.MustCompile(`^\(G82\)$`)
 	regG83 := regexp.MustCompile(`^\(G83\)$`)
@@ -40,7 +40,7 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 		} else if regFdNo.MatchString(source[i]) {
 			res = append(res, "("+source[i]+")")
 		} else if regTool.MatchString(source[i]) {
-			r := regexp.MustCompile(`\d{2}`)
+			r := regexp.MustCompile(`\d{1,2}`)
 			toolNums := r.FindAllStringSubmatch(source[i], 1)
 			res = append(res, "T"+toolNums[0][0])
 			res = append(res, "M6 Q0")
@@ -62,11 +62,11 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 		} else if regG82.MatchString(source[i]) {
 			res = append(res, "G98G82R2.0Z-1.0Q2.0P500F180L0")
 		} else if regG83.MatchString(source[i]) {
-			res = append(res, "G98G83R2.0Z-45.Q2.0F180L0")
+			res = append(res, "G98G83R2.0Z-39.0Q2.0F180L0")
 		} else if regG84.MatchString(source[i]) {
 			res = append(res, "G98G84R5.0Z-35.0F350L0")
 		} else if regG85.MatchString(source[i]) {
-			res = append(res, "G98G85R2.0Z-35.F150L0")
+			res = append(res, "G98G85R2.0Z-39.0F150L0")
 		} else if regX0Y0.MatchString(source[i]) {
 			res = append(res, source[i])
 			// 次の行が"M99"の場合
