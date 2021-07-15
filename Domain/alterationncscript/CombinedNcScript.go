@@ -48,7 +48,7 @@ func (c *CombinedNcScript) CombineNcScript(inPath string, inFiles []string, outP
 
 	// 前後に"%"追加
 	conLine = append([]string{"%"}, conLine...)
-	conLine = append(conLine, []string{"M30", "%"}...)
+	conLine = append(conLine, "%")
 
 	// 結合ファイル保存
 	log.Println("info: 結合ファイルを保存します", conLine)
