@@ -107,44 +107,18 @@ func (c *ConvertedNcScript) divideScript(source []string) (isHole, isReamer, isT
 	regReamer := regexp.MustCompile(`^\(G85\)$`)
 	regTap := regexp.MustCompile(`^\(G84\)$`)
 	for i := range source {
-		if regHole.MatchString(source[i]) {
+		if !isHole && regHole.MatchString(source[i]) {
 			isHole = true
-		}
-		if regReamer.MatchString(source[i]) {
-			isReamer = true
-		}
-		if regTap.MatchString(source[i]) {
-			isTap = true
-		}
 
-		if isHole && isReamer && isTap {
+			if regReamer.MatchString(source[i]) {
+				isReamer = true
+			} else if regTap.MatchString(source[i]) {
+				isTap = true
+			}
+
 			// 用済みのループは抜ける
 			break
 		}
 	}
 	return isHole, isReamer, isTap
-}
-
-/* 穴あけのスクリプトか判定する */
-func (c *ConvertedNcScript) isHoleSource(source []string) bool {
-	reg := regexp.MustCompile(`^\(G8[235]\)$`)
-	for i := range source {
-		if reg.MatchString(source[i]) {
-			return true
-		}
-	}
-
-	return false
-}
-
-/* リーマのスクリプトか判定する */
-func (c *ConvertedNcScript) isReamerSource(source []string) bool {
-	reg := regexp.MustCompile(`^\(G85\)$`)
-	for i := range source {
-		if reg.MatchString(source[i]) {
-			return true
-		}
-	}
-
-	return false
 }
