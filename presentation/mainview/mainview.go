@@ -29,7 +29,6 @@ type MainView struct {
 	lowerableRankButton *widgets.QPushButton
 	outButton           *widgets.QPushButton
 	outLabel            *widgets.QLabel
-	openReviewCheckBox  *widgets.QCheckBox
 	cnvButton           *widgets.QPushButton
 }
 
@@ -137,9 +136,6 @@ func (m *MainView) viewDesign() {
 	hbox2.AddWidget(m.outLabel, 0, core.Qt__AlignBaseline)
 	hbox2.AddWidget(m.outButton, 0, core.Qt__AlignRight)
 
-	// オープンレビューの選択
-	m.openReviewCheckBox = widgets.NewQCheckBox2("オープンレビューで実行する", nil)
-
 	// コンバートの指定
 	m.cnvButton = widgets.NewQPushButton2("実行", nil)
 	m.cnvButton.SetMinimumHeight(50)
@@ -150,7 +146,6 @@ func (m *MainView) viewDesign() {
 	// vbox.AddWidget(v.inLabel, 0, core.Qt__AlignBaseline)
 	vbox.AddLayout(hbox3, 0)
 	vbox.AddLayout(hbox2, 0)
-	vbox.AddWidget(m.openReviewCheckBox, 0, core.Qt__AlignBaseline)
 	vbox.AddWidget(m.cnvButton, 0, core.Qt__AlignBaseline)
 
 }

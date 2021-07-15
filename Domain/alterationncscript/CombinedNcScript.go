@@ -22,7 +22,7 @@ func NewCombinedNcScript(dir *DirViewer, fr *FileReader, cnv *ConvertedNcScript,
 	}
 }
 
-func (c *CombinedNcScript) CombineNcScript(inPath string, inFiles []string, outPath string, canOpenReview bool) error {
+func (c *CombinedNcScript) CombineNcScript(inPath string, inFiles []string, outPath string) error {
 	// ファイルの読み込み
 	var conLine []string
 	for i, file := range inFiles {
@@ -39,7 +39,7 @@ func (c *CombinedNcScript) CombineNcScript(inPath string, inFiles []string, outP
 			return err
 		}
 
-		resLine, err := (*c.cnv).Convert(lines, canOpenReview)
+		resLine, err := (*c.cnv).Convert(lines)
 		if err != nil {
 			return err
 		}
