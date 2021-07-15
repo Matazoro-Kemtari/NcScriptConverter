@@ -16,8 +16,7 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 		return nil, fmt.Errorf("変換対象がありません")
 	}
 
-	isHoleSource := c.isHoleSource(source)
-	isReamerSource := c.isReamerSource(source)
+	isHoleSource, isReamerSource, isTapSource := c.divideScript(source)
 
 	var res []string
 	regPercent := regexp.MustCompile(`^%$`)
@@ -26,12 +25,13 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 	regSpindle := regexp.MustCompile(`^\(S\d{4}\)$`)
 	regG82 := regexp.MustCompile(`^\(G82\)$`)
 	regG83 := regexp.MustCompile(`^\(G83\)$`)
+	regG84 := regexp.MustCompile(`^\(G84\)$`)
 	regG85 := regexp.MustCompile(`^\(G85\)$`)
 	regX0Y0 := regexp.MustCompile(`^X0\.Y0\.$`)
 	regM99 := regexp.MustCompile(`^M99$`)
 	regM30 := regexp.MustCompile(`^M30$`)
 	regG54 := regexp.MustCompile(`^G54$`)
-	if isReamerSource {
+	if isReamerSource || isTapSource {
 		res = append(res, "M00")
 	}
 	for i := range source {
@@ -62,9 +62,11 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 		} else if regG82.MatchString(source[i]) {
 			res = append(res, "G98G82R2.0Z-1.0Q2.0P500F180L0")
 		} else if regG83.MatchString(source[i]) {
-			res = append(res, "G98G83R2.0 Z-45.Q2.0F180L0")
+			res = append(res, "G98G83R2.0Z-45.Q2.0F180L0")
+		} else if regG84.MatchString(source[i]) {
+			res = append(res, "G98G84R5.0Z-35.0F350L0")
 		} else if regG85.MatchString(source[i]) {
-			res = append(res, "G98G85R2.0 Z-35.F150L0")
+			res = append(res, "G98G85R2.0Z-35.F150L0")
 		} else if regX0Y0.MatchString(source[i]) {
 			res = append(res, source[i])
 			// 次の行が"M99"の場合
@@ -99,6 +101,30 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 	return res, nil
 }
 
+// スクリプトの種別を判定する
+func (c *ConvertedNcScript) divideScript(source []string) (isHole, isReamer, isTap bool) {
+	regHole := regexp.MustCompile(`^\(G8[2-5]\)$`)
+	regReamer := regexp.MustCompile(`^\(G85\)$`)
+	regTap := regexp.MustCompile(`^\(G84\)$`)
+	for i := range source {
+		if regHole.MatchString(source[i]) {
+			isHole = true
+		}
+		if regReamer.MatchString(source[i]) {
+			isReamer = true
+		}
+		if regTap.MatchString(source[i]) {
+			isTap = true
+		}
+
+		if isHole && isReamer && isTap {
+			// 用済みのループは抜ける
+			break
+		}
+	}
+	return isHole, isReamer, isTap
+}
+
 /* 穴あけのスクリプトか判定する */
 func (c *ConvertedNcScript) isHoleSource(source []string) bool {
 	reg := regexp.MustCompile(`^\(G8[235]\)$`)
@@ -113,7 +139,7 @@ func (c *ConvertedNcScript) isHoleSource(source []string) bool {
 
 /* リーマのスクリプトか判定する */
 func (c *ConvertedNcScript) isReamerSource(source []string) bool {
-	reg := regexp.MustCompile(`^\(T15\)$`)
+	reg := regexp.MustCompile(`^\(G85\)$`)
 	for i := range source {
 		if reg.MatchString(source[i]) {
 			return true
