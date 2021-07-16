@@ -23,10 +23,11 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 	regFdNo := regexp.MustCompile(`^O\d{4}$`)
 	regTool := regexp.MustCompile(`^\(T[1234]?\d\)$`)
 	regSpindle := regexp.MustCompile(`^\(S\d{2,4}\)$`)
-	regG82 := regexp.MustCompile(`^\(G82\)$`)
-	regG83 := regexp.MustCompile(`^\(G83\)$`)
-	regG84 := regexp.MustCompile(`^\(G84\)$`)
-	regG85 := regexp.MustCompile(`^\(G85\)$`)
+	regG81 := regexp.MustCompile(`^\(G81\)$`) // 面取り
+	regG82 := regexp.MustCompile(`^\(G82\)$`) // センター
+	regG83 := regexp.MustCompile(`^\(G83\)$`) // ドリル
+	regG84 := regexp.MustCompile(`^\(G84\)$`) // タップ
+	regG85 := regexp.MustCompile(`^\(G85\)$`) // リーマ
 	regX0Y0 := regexp.MustCompile(`^X0\.Y0\.$`)
 	regM99 := regexp.MustCompile(`^M99$`)
 	regM30 := regexp.MustCompile(`^M30$`)
@@ -59,6 +60,8 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 			if !isHoleSource {
 				res = append(res, "G05.1Q1")
 			}
+		} else if regG81.MatchString(source[i]) {
+			res = append(res, "G98G81R2.0Z-8.5F200L0")
 		} else if regG82.MatchString(source[i]) {
 			res = append(res, "G98G82R2.0Z-1.0Q2.0P500F180L0")
 		} else if regG83.MatchString(source[i]) {
@@ -103,7 +106,7 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 
 // スクリプトの種別を判定する
 func (c *ConvertedNcScript) divideScript(source []string) (isHole, isReamer, isTap bool) {
-	regHole := regexp.MustCompile(`^\(G8[2-5]\)$`)
+	regHole := regexp.MustCompile(`^\(G8[1-5]\)$`)
 	regReamer := regexp.MustCompile(`^\(G85\)$`)
 	regTap := regexp.MustCompile(`^\(G84\)$`)
 	for i := range source {
