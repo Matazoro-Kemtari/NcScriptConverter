@@ -47,7 +47,7 @@ func (c *CombinedNcScript) CombineNcScript(inPath string, inFiles []string, outP
 	}
 
 	// 前後に"%"追加
-	conLine = append([]string{"%"}, conLine...)
+	conLine = append([]string{"%", "O1001"}, conLine...) // マシニングのOナンバー
 	conLine = append(conLine, []string{"M30", "%"}...)
 
 	// 結合ファイル保存
