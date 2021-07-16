@@ -89,6 +89,7 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 				res = append(res, "(M99)")
 			}
 		} else if regM30.MatchString(source[i]) {
+			res = append(res, "M09")
 			res = append(res, "G91G0G28Z0")
 			res = append(res, "G91G0G28B0")
 			res = append(res, "G91G0G28C0")
