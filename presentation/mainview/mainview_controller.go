@@ -48,7 +48,7 @@ func (v *MainViewController) Initialize() {
 		p := widgets.QFileDialog_GetExistingDirectory(
 			nil,
 			"NCデータフォルダを指定してください",
-			"C:\\",
+			"",
 			widgets.QFileDialog__DontUseCustomDirectoryIcons,
 		)
 		if len(p) > 0 {
