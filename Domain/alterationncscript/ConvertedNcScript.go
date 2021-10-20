@@ -16,22 +16,23 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 		return nil, fmt.Errorf("変換対象がありません")
 	}
 
-	isHoleSource := c.isHoleSource(source)
-	isReamerSource := c.isReamerSource(source)
+	isHoleSource, isReamerSource, isTapSource := c.divideScript(source)
 
 	var res []string
 	regPercent := regexp.MustCompile(`^%$`)
 	regFdNo := regexp.MustCompile(`^O\d{4}$`)
-	regTool := regexp.MustCompile(`^\(T[1234]\d\)$`)
-	regSpindle := regexp.MustCompile(`^\(S\d{4}\)$`)
-	regG82 := regexp.MustCompile(`^\(G82\)$`)
-	regG83 := regexp.MustCompile(`^\(G83\)$`)
-	regG85 := regexp.MustCompile(`^\(G85\)$`)
+	regTool := regexp.MustCompile(`^\(T[1234]?\d\)$`)
+	regSpindle := regexp.MustCompile(`^\(S\d{2,4}\)$`)
+	regG81 := regexp.MustCompile(`^\(G81\)$`) // 面取り
+	regG82 := regexp.MustCompile(`^\(G82\)$`) // センター
+	regG83 := regexp.MustCompile(`^\(G83\)$`) // ドリル
+	regG84 := regexp.MustCompile(`^\(G84\)$`) // タップ
+	regG85 := regexp.MustCompile(`^\(G85\)$`) // リーマ
 	regX0Y0 := regexp.MustCompile(`^X0\.Y0\.$`)
 	regM99 := regexp.MustCompile(`^M99$`)
 	regM30 := regexp.MustCompile(`^M30$`)
 	regG54 := regexp.MustCompile(`^G54$`)
-	if isReamerSource {
+	if isReamerSource || isTapSource {
 		res = append(res, "M00")
 	}
 	for i := range source {
@@ -40,7 +41,7 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 		} else if regFdNo.MatchString(source[i]) {
 			res = append(res, "("+source[i]+")")
 		} else if regTool.MatchString(source[i]) {
-			r := regexp.MustCompile(`\d{2}`)
+			r := regexp.MustCompile(`\d{1,2}`)
 			toolNums := r.FindAllStringSubmatch(source[i], 1)
 			res = append(res, "T"+toolNums[0][0])
 			res = append(res, "M6 Q0")
@@ -52,19 +53,23 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 			res = append(res, "G43Z100.H"+toolNums[0][0])
 			res = append(res, "M01")
 		} else if regSpindle.MatchString(source[i]) {
-			r := regexp.MustCompile(`S\d{4}`)
+			r := regexp.MustCompile(`S\d{2,4}`)
 			spindle := r.FindAllStringSubmatch(source[i], 1)
 			res = append(res, spindle[0][0]+"M3")
 			res = append(res, "M8")
 			if !isHoleSource {
 				res = append(res, "G05.1Q1")
 			}
+		} else if regG81.MatchString(source[i]) {
+			res = append(res, "G98G81R2.0Z-8.5F200L0")
 		} else if regG82.MatchString(source[i]) {
 			res = append(res, "G98G82R2.0Z-1.0Q2.0P500F180L0")
 		} else if regG83.MatchString(source[i]) {
-			res = append(res, "G98G83R2.0 Z-45.Q2.0F180L0")
+			res = append(res, "G98G83R2.0Z-39.0Q2.0F180L0")
+		} else if regG84.MatchString(source[i]) {
+			res = append(res, "G98G84R5.0Z-35.0F350L0")
 		} else if regG85.MatchString(source[i]) {
-			res = append(res, "G98G85R2.0 Z-35.F150L0")
+			res = append(res, "G98G85R2.0Z-39.0F150L0")
 		} else if regX0Y0.MatchString(source[i]) {
 			res = append(res, source[i])
 			// 次の行が"M99"の場合
@@ -84,6 +89,7 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 				res = append(res, "(M99)")
 			}
 		} else if regM30.MatchString(source[i]) {
+			res = append(res, "M09")
 			res = append(res, "G91G0G28Z0")
 			res = append(res, "G91G0G28B0")
 			res = append(res, "G91G0G28C0")
@@ -99,26 +105,24 @@ func (c *ConvertedNcScript) Convert(source []string) ([]string, error) {
 	return res, nil
 }
 
-/* 穴あけのスクリプトか判定する */
-func (c *ConvertedNcScript) isHoleSource(source []string) bool {
-	reg := regexp.MustCompile(`^\(G8[235]\)$`)
+// スクリプトの種別を判定する
+func (c *ConvertedNcScript) divideScript(source []string) (isHole, isReamer, isTap bool) {
+	regHole := regexp.MustCompile(`^\(G8[1-5]\)$`)
+	regReamer := regexp.MustCompile(`^\(G85\)$`)
+	regTap := regexp.MustCompile(`^\(G84\)$`)
 	for i := range source {
-		if reg.MatchString(source[i]) {
-			return true
+		if !isHole && regHole.MatchString(source[i]) {
+			isHole = true
+
+			if regReamer.MatchString(source[i]) {
+				isReamer = true
+			} else if regTap.MatchString(source[i]) {
+				isTap = true
+			}
+
+			// 用済みのループは抜ける
+			break
 		}
 	}
-
-	return false
-}
-
-/* リーマのスクリプトか判定する */
-func (c *ConvertedNcScript) isReamerSource(source []string) bool {
-	reg := regexp.MustCompile(`^\(T15\)$`)
-	for i := range source {
-		if reg.MatchString(source[i]) {
-			return true
-		}
-	}
-
-	return false
+	return isHole, isReamer, isTap
 }
